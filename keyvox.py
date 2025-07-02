@@ -27,7 +27,7 @@ class KeyVoxApp:
 
         try:
            
-            self.logo_img = ImageTk.PhotoImage(Image.open("images/logo.png").resize((120, 120), Image.Resampling.LANCZOS))
+            self.logo_img = ImageTk.PhotoImage(Image.open("images/logo.png").resize((110, 110), Image.Resampling.LANCZOS))
             self.key_img = ImageTk.PhotoImage(Image.open("images/key.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.mic_img = ImageTk.PhotoImage(Image.open("images/mic.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.otp_img = ImageTk.PhotoImage(Image.open("images/otp_settings.png").resize((60, 60), Image.Resampling.LANCZOS))
