@@ -30,7 +30,7 @@ class KeyVoxApp:
             self.key_img = ImageTk.PhotoImage(Image.open("images/key.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.mic_img = ImageTk.PhotoImage(Image.open("images/mic.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.otp_img = ImageTk.PhotoImage(Image.open("images/otp_settings.png").resize((60, 60), Image.Resampling.LANCZOS))
-            self.usb_img = ImageTk.PhotoImage(Image.open("images/usb.png").resize((180, 180), Image.Resampling.LANCZOS))
+            self.usb_img = ImageTk.PhotoImage(Image.open("images/usb.png").resize((230, 230), Image.Resampling.LANCZOS))
         except FileNotFoundError as e:
             messagebox.showerror("Error", f"Image not found: {e.filename}\nPlease make sure 'images' folder and all PNG files exist.")
             root.destroy()
