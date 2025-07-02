@@ -26,7 +26,8 @@ class KeyVoxApp:
         if not os.path.exists(AUDIO_DIR): os.makedirs(AUDIO_DIR)
 
         try:
-            self.logo_img = ImageTk.PhotoImage(Image.open("images/logo.png").resize((70, 40), Image.Resampling.LANCZOS))
+           
+            self.logo_img = ImageTk.PhotoImage(Image.open("images/logo.png").resize((120, 120), Image.Resampling.LANCZOS))
             self.key_img = ImageTk.PhotoImage(Image.open("images/key.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.mic_img = ImageTk.PhotoImage(Image.open("images/mic.png").resize((60, 60), Image.Resampling.LANCZOS))
             self.otp_img = ImageTk.PhotoImage(Image.open("images/otp_settings.png").resize((60, 60), Image.Resampling.LANCZOS))
@@ -75,62 +76,91 @@ class KeyVoxApp:
         for i in range(self.height):self.canvas.create_line(0,i,self.width,i,fill=f"#{int(r1+r*i):04x}{int(g1+g*i):04x}{int(b1+b*i):04x}")
     
     def _create_header(self):
-        top_area_frame = tk.Frame(self.canvas, bg=GRADIENT_TOP_COLOR)
-        self.canvas.create_window(0, 0, anchor="nw", window=top_area_frame, width=self.width)
-        top_area_frame.grid_columnconfigure(1, weight=1)
+        # --- Vertical Alignment & Padding ---
+       
+        nav_y_center = 50  
+        line_y = nav_y_center + 20   
+        side_padding = 40 
 
-        logo_label = tk.Label(top_area_frame, image=self.logo_img, bg=GRADIENT_TOP_COLOR)
-        logo_label.grid(row=0, column=0, sticky="nw", padx=30, pady=20)
-
-        navbar_area = tk.Frame(top_area_frame, bg=GRADIENT_TOP_COLOR)
-        navbar_area.grid(row=0, column=1, sticky="sew", padx=(0, 30))
-        navbar_area.grid_columnconfigure(0, weight=1)
-
-        nav_tabs_container = tk.Frame(navbar_area, bg=GRADIENT_TOP_COLOR)
-        nav_tabs_container.grid(row=0, column=0, sticky="sw", pady=(40, 0))
+        # 1. Logo 
+        self.canvas.create_image(side_padding, line_y / 1.2, anchor="w", image=self.logo_img, tags="logo")
         
+        
+        # --- Status Icons (Right side) ---
+        current_x = self.width - side_padding
+        
+        # Info Icon ('i')
+        info_tag = "info_icon"
+        info_rect_id = self.canvas.create_rectangle(current_x - 22, nav_y_center - 11, current_x, nav_y_center + 11, fill=PLACEHOLDER_COLOR, outline=PLACEHOLDER_COLOR, tags=info_tag)
+        self.canvas.create_text(current_x - 11, nav_y_center, text="i", font=("Arial", 12, "bold"), fill=TEXT_COLOR, tags=info_tag)
+        self.canvas.tag_bind(info_tag, "<Button-1>", self.show_about_screen)
+        self.canvas.tag_bind(info_tag, "<Enter>", lambda e: self.canvas.config(cursor="hand2"))
+        self.canvas.tag_bind(info_tag, "<Leave>", lambda e: self.canvas.config(cursor=""))
+        line_x1 = self.canvas.bbox(info_rect_id)[2] # Get right edge for divider line
+        current_x -= (22 + 10)
+
+        # Help Icon ('?')
+        help_tag = "help_icon"
+        self.canvas.create_rectangle(current_x - 22, nav_y_center - 11, current_x, nav_y_center + 11, fill=PLACEHOLDER_COLOR, outline=PLACEHOLDER_COLOR, tags=help_tag)
+        self.canvas.create_text(current_x - 11, nav_y_center, text="?", font=("Arial", 12, "bold"), fill=TEXT_COLOR, tags=help_tag)
+        self.canvas.tag_bind(help_tag, "<Button-1>", self.show_help_screen)
+        self.canvas.tag_bind(help_tag, "<Enter>", lambda e: self.canvas.config(cursor="hand2"))
+        self.canvas.tag_bind(help_tag, "<Leave>", lambda e: self.canvas.config(cursor=""))
+        current_x -= (22 + 10)
+
+        # Status Dot
+        self.canvas.create_oval(current_x - 12, nav_y_center - 6, current_x, nav_y_center + 6, fill="#2ecc71", outline="")
+        current_x -= (12 + 5)
+
+        # Status Text
+        self.canvas.create_text(current_x, nav_y_center, text="status:", font=self.font_small, fill=TEXT_COLOR, anchor="e")
+
+        # --- Navigation Tabs (Left side) ---
+        start_x = 180 
         nav_map = {"home": self.show_home_screen, "Applications": self.show_applications_screen, "Enrollment": self.navigate_to_enrollment}
-        for txt, cmd in nav_map.items():
-            c = tk.Frame(nav_tabs_container, bg=GRADIENT_TOP_COLOR)
-            c.pack(side="left")
-            lbl = tk.Label(c, text=txt.capitalize(), font=self.font_nav, fg=TEXT_COLOR, bg=GRADIENT_TOP_COLOR, cursor="hand2")
-            lbl.pack(padx=15, pady=(0, 10))
-            ul = tk.Frame(c, height=3, bg=TEXT_COLOR)
-            k = txt.lower()
-            self.nav_widgets[k] = {'label': lbl, 'underline': ul, 'container': c}
-            lbl.bind("<Button-1>", lambda e, c=cmd: c())
-            c.bind("<Button-1>", lambda e, c=cmd: c())
-
-        status_container = tk.Frame(navbar_area, bg=GRADIENT_TOP_COLOR)
-        status_container.grid(row=0, column=1, sticky="se", pady=(0, 10))
         
-        tk.Label(status_container, text="status:", font=self.font_small, fg=TEXT_COLOR, bg=GRADIENT_TOP_COLOR).pack(side="left", anchor="center")
-        
-        status_canvas = tk.Canvas(status_container, width=12, height=12, bg=GRADIENT_TOP_COLOR, highlightthickness=0)
-        status_canvas.pack(side="left", padx=5, anchor="center")
-        status_canvas.create_oval(2, 2, 10, 10, fill="#2ecc71", outline="")
+        first_tab_bbox = None
+        for key, command in nav_map.items():
+            text = key.capitalize()
+            tag = f"nav_{key}"
+            
+            text_id = self.canvas.create_text(start_x, nav_y_center, text=text, font=self.font_nav, fill=TEXT_COLOR, anchor="w", tags=tag)
+            
+            self.canvas.tag_bind(tag, "<Button-1>", lambda e, cmd=command: cmd())
+            self.canvas.tag_bind(tag, "<Enter>", lambda e: self.canvas.config(cursor="hand2"))
+            self.canvas.tag_bind(tag, "<Leave>", lambda e: self.canvas.config(cursor=""))
+            
+            bbox = self.canvas.bbox(text_id)
+            if first_tab_bbox is None:
+                first_tab_bbox = bbox
+                
+            underline_id = self.canvas.create_line(bbox[0], line_y, bbox[2], line_y, fill=TEXT_COLOR, width=3, state='hidden')
+            
+            # BUG FIX: Use lowercase key to ensure lookup works in _update_nav_selection
+            self.nav_widgets[key.lower()] = {'text_id': text_id, 'underline_id': underline_id}
+            
+            start_x = bbox[2] + 45
 
-        help_icon = tk.Label(status_container, text=" ? ", font=("Arial", 12, "bold"), fg=TEXT_COLOR, bg=PLACEHOLDER_COLOR, relief="solid", borderwidth=1, cursor="hand2")
-        help_icon.pack(side="left", padx=5)
-        help_icon.bind("<Button-1>", self.show_help_screen)
+        # --- Bottom Divider Line ---
+        if first_tab_bbox:
+            line_x0 = first_tab_bbox[0] # Get left edge of the "Home" tab
+            self.canvas.create_line(line_x0, line_y, line_x1, line_y, fill=TEXT_COLOR, width=1)
 
-        info_icon = tk.Label(status_container, text=" i ", font=("Arial", 12, "bold"), fg=TEXT_COLOR, bg=PLACEHOLDER_COLOR, relief="solid", borderwidth=1, cursor="hand2")
-        info_icon.pack(side="left", padx=5)
-        info_icon.bind("<Button-1>", self.show_about_screen)
-
-        line = tk.Frame(navbar_area, height=1, bg=TEXT_COLOR)
-        line.grid(row=1, column=0, columnspan=2, sticky="ew")
 
     def _update_nav_selection(self, key):
         if key:
             key = key.lower()
-        for k,w in self.nav_widgets.items():
-            w['label'].config(font=self.font_nav)
-            w['underline'].pack_forget()
+        
+       
+        for k, w in self.nav_widgets.items():
+            self.canvas.itemconfig(w['text_id'], font=self.font_nav)
+            self.canvas.itemconfig(w['underline_id'], state='hidden')
+        
+        # Activate the selected nav item
         if key and key in self.nav_widgets:
-            w=self.nav_widgets[key]
-            w['label'].config(font=self.font_nav_active)
-            w['underline'].pack(fill='x')
+            w = self.nav_widgets[key]
+            self.canvas.itemconfig(w['text_id'], font=self.font_nav_active)
+            self.canvas.itemconfig(w['underline_id'], state='normal')
             
     def _clear_content_frame(self):
         for w in self.content_frame.winfo_children(): w.destroy()
