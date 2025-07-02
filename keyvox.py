@@ -96,7 +96,7 @@ class KeyVoxApp:
         self.canvas.tag_bind(info_tag, "<Button-1>", self.show_about_screen)
         self.canvas.tag_bind(info_tag, "<Enter>", lambda e: self.canvas.config(cursor="hand2"))
         self.canvas.tag_bind(info_tag, "<Leave>", lambda e: self.canvas.config(cursor=""))
-        line_x1 = self.canvas.bbox(info_rect_id)[2] # Get right edge for divider line
+        line_x1 = self.canvas.bbox(info_rect_id)[2] 
         current_x -= (22 + 10)
 
         # Help Icon ('?')
@@ -136,7 +136,7 @@ class KeyVoxApp:
                 
             underline_id = self.canvas.create_line(bbox[0], line_y, bbox[2], line_y, fill=TEXT_COLOR, width=3, state='hidden')
             
-            # BUG FIX: Use lowercase key to ensure lookup works in _update_nav_selection
+            
             self.nav_widgets[key.lower()] = {'text_id': text_id, 'underline_id': underline_id}
             
             start_x = bbox[2] + 45
