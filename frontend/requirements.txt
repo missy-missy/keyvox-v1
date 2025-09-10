@@ -1,0 +1,13 @@
+
+# For making HTTP requests to the backend API
+requests
+
+# Python Imaging Library (fork) for handling images in Tkinter
+Pillow
+
+# For recording and handling audio from the microphone
+pyaudio
+sounddevice
+
+# For handling WAV audio files (often a dependency, good to have)
+scipy

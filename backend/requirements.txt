@@ -1,0 +1,22 @@
+# Web server framework to create the API
+Flask
+Flask-Cors
+
+# The core libraries for machine learning and voice processing
+torch
+torchaudio
+
+# The library that provides the pre-trained speaker recognition model
+speechbrain
+
+# For numerical operations, especially with audio data
+numpy
+
+# For handling WAV audio files
+scipy
+
+# For audio I/O, a dependency for your original helpers
+sounddevice
+
+# Recommended audio backend for torchaudio on Windows
+soundfile
