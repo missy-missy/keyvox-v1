@@ -1,10 +1,9 @@
 # keyvox
 
-# gawa muna kayo own branch nio guys ha
+# fork nio muna guys
 
-# then pag na merge nio na, delete nio na branch nio
+# then, clone
 
-# tas fetch origin ulet then create branch ulet para malinis
 
 Changes to the frontend/backend Actions
 1. Get Username 
