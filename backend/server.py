@@ -1,11 +1,23 @@
+# --- HACK TO MAKE IMPORTS WORK ---
+# This block must be at the very top of your entry-point file (server.py)
+import sys
 import os
+
+# This line adds the parent directory (e.g., 'keyvox') to Python's path
+# so it can find the 'backend' package.
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# -----------------------------------
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import torch
 import torchaudio
-import database
-from helpers import get_model, perform_quality_checks
-from config import VOICEPRINTS_DIR, VERIFICATION_THRESHOLD
+
+# --- CORRECTED IMPORTS ---
+# Now that the path is set, use absolute imports from the project root.
+from backend import database
+from backend.helpers import get_model, perform_quality_checks
+from backend.config import VOICEPRINTS_DIR, VERIFICATION_THRESHOLD
 
 # --- Initialization ---
 app = Flask(__name__)
@@ -19,7 +31,8 @@ with app.app_context():
 app.model = get_model()
 
 # Create directories for temporary uploads and permanent voiceprints
-TEMP_AUDIO_DIR = 'temp_uploads'
+# Use an absolute path for TEMP_AUDIO_DIR to avoid ambiguity
+TEMP_AUDIO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp_uploads')
 os.makedirs(TEMP_AUDIO_DIR, exist_ok=True)
 os.makedirs(VOICEPRINTS_DIR, exist_ok=True)
 

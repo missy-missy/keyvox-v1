@@ -1,0 +1,3 @@
+requests          # For communicating with the backend API (in api_client.py)
+Pillow            # For handling images (PNGs for icons, etc.)
+pyaudio           # For capturing microphone audio directly

@@ -2,7 +2,7 @@ import torch
 import torchaudio
 import numpy as np
 from speechbrain.inference.speaker import SpeakerRecognition
-from config import SAMPLE_RATE, MODEL_SOURCE, MODELS_DIR
+from backend.config import SAMPLE_RATE, MODEL_SOURCE, MODELS_DIR
 
 def get_model():
     """

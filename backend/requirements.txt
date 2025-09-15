@@ -1,0 +1,13 @@
+
+Flask             # The core web framework
+Flask-Cors        # To allow the frontend to make requests to the backend
+requests          # Often useful for backend-to-backend communication if needed
+numpy             # For numerical operations, often a dependency for ML libraries
+
+# For PyTorch, specify the CPU version for a lean production server
+# To install CPU-only torch, you might use a command like:
+# pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+torch
+torchaudio
+speechbrain
+pyusb
