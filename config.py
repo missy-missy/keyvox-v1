@@ -27,4 +27,4 @@ MODEL_SOURCE = "speechbrain/spkrec-ecapa-voxceleb"
 
 # --- Verification Settings ---
 # This variable is required by server.py
-VERIFICATION_THRESHOLD = 0.65 # The similarity score needed to pass verification.
+VERIFICATION_THRESHOLD = 0.75 # The similarity score needed to pass verification.

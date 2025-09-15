@@ -68,6 +68,20 @@ class APIClient:
             print(f"API Error during voice enrollment: {e}")
             return {"status": "error", "message": "Cannot connect to the server."}
 
+    def check_enrollment(self, username):
+        """
+        Performs a pre-check to see if a user is enrolled for voice auth.
+        :param username (str): The username to check.
+        :return: The JSON response from the server.
+        """
+        try:
+            payload = {"username": username}
+            response = requests.post(f"{BACKEND_URL}/check_enrollment", json=payload)
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"API Error during enrollment check: {e}")
+            return {"enrolled": False, "message": "Cannot connect to the server."}
+
     def verify_voice(self, username, audio_filepath):
         """
         Sends a user's live audio file for verification against their voiceprint.

@@ -1,0 +1,20 @@
+# --- Backend & Model ---
+Flask
+Flask-Cors
+torch
+torchaudio
+speechbrain
+numpy
+scipy
+sounddevice
+librosa  # For extract_features.py
+
+# --- Frontend ---
+requests
+Pillow
+pyaudio
+pygame   # For recorder.py
+
+# --- USB Hardware Communication ---
+# For import_usb.py to detect the physical key
+pyusb

@@ -10,7 +10,10 @@ from config import VOICEPRINTS_DIR, VERIFICATION_THRESHOLD
 # --- Initialization ---
 app = Flask(__name__)
 CORS(app)
-database.init_db()
+
+# --- CORRECTED: Initialize DB within app context to prevent race conditions ---
+with app.app_context():
+    database.init_db()
 
 # Load the SpeechBrain model only once when the server starts
 app.model = get_model()
@@ -21,7 +24,6 @@ os.makedirs(TEMP_AUDIO_DIR, exist_ok=True)
 os.makedirs(VOICEPRINTS_DIR, exist_ok=True)
 
 # --- API Routes ---
-
 @app.route('/api/status', methods=['GET'])
 def status():
     return jsonify({"status": "ok", "message": "Backend server is running."})
@@ -81,6 +83,23 @@ def enroll():
         print(f"Enrollment Error: {e}")
         return jsonify({"status": "error", "message": "Failed to create voiceprint."}), 500
 
+
+@app.route('/api/check_enrollment', methods=['POST'])
+def check_enrollment():
+    """Checks if a user exists and has a valid voiceprint enrolled."""
+    data = request.get_json()
+    username = data.get('username')
+    if not username:
+        return jsonify({"enrolled": False, "message": "Username not provided."}), 400
+
+    user = database.get_user_by_username(username)
+    
+    # Check if user exists AND their voiceprint file is physically present
+    if user and user.get('voiceprint_path') and os.path.exists(user['voiceprint_path']):
+        return jsonify({"enrolled": True})
+    else:
+        return jsonify({"enrolled": False, "message": "User not found or not enrolled for voice verification."})
+
 @app.route('/api/verify', methods=['POST'])
 def verify():
     """Handles voice verification from an uploaded audio file."""
@@ -116,7 +135,6 @@ def verify():
         os.remove(temp_filepath)
         print(f"Verification Error: {e}")
         return jsonify({"verified": False, "message": "Error during verification process."}), 500
-
 
 if __name__ == '__main__':
     if not app.model:
