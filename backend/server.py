@@ -17,7 +17,12 @@ import torchaudio
 # Now that the path is set, use absolute imports from the project root.
 from backend import database
 from backend.helpers import get_model, perform_quality_checks
-from backend.config import VOICEPRINTS_DIR, VERIFICATION_THRESHOLD
+from backend.config import (
+    VOICEPRINTS_DIR, 
+    VERIFICATION_THRESHOLD, 
+    MODELS_DIR, 
+    DATABASE_PATH
+)
 
 # --- Initialization ---
 app = Flask(__name__)
@@ -30,11 +35,25 @@ with app.app_context():
 # Load the SpeechBrain model only once when the server starts
 app.model = get_model()
 
-# Create directories for temporary uploads and permanent voiceprints
-# Use an absolute path for TEMP_AUDIO_DIR to avoid ambiguity
+# --- Ensure All Necessary Directories Exist Before Starting ---
+# This makes the server robust for first-time runs on a new machine.
+print("Ensuring all necessary directories exist...")
+os.makedirs(MODELS_DIR, exist_ok=True)
+os.makedirs(VOICEPRINTS_DIR, exist_ok=True)
+# Ensure the parent directory for the database exists (e.g., the 'data' folder)
+os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+# Create a directory for temporary audio file uploads
 TEMP_AUDIO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp_uploads')
 os.makedirs(TEMP_AUDIO_DIR, exist_ok=True)
-os.makedirs(VOICEPRINTS_DIR, exist_ok=True)
+print("Directories are ready.")
+# -------------------------------------------------------------
+
+# --- Initialize DB within app context to prevent race conditions ---
+with app.app_context():
+    database.init_db()
+
+# --- Load the SpeechBrain model only once when the server starts ---
+app.model = get_model()
 
 # --- API Routes ---
 @app.route('/api/status', methods=['GET'])
