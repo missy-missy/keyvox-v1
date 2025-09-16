@@ -102,8 +102,19 @@ class KeyVoxApp:
     # --- MAIN SCREENS ---
     def show_home_screen(self, event=None):
         self._update_nav_selection("home")
-        if self.currently_logged_in_user: self.show_logged_in_screen(); return
-        if self.just_enrolled: self.just_enrolled = False; self.show_login_voice_auth_screen(); return
+        
+
+        if self.currently_logged_in_user:
+            self.show_logged_in_screen()
+            return
+
+        if self.just_enrolled:
+            self.just_enrolled = False
+            # This logic correctly sets the user for the post-enrollment login flow
+            self.login_attempt_user = {"username": self.just_enrolled_username}
+            self.show_login_voice_auth_screen()
+            return
+            
         self.show_insert_key_screen()
             
     def show_about_screen(self, event=None):
@@ -231,18 +242,69 @@ class KeyVoxApp:
 
     def _check_password(self):
         password = self.password_entry.get()
+        
+        # Add a check to ensure login_attempt_user exists before trying to use it.
+        # This prevents the crash if the user somehow reaches this screen with no active login.
+        if not self.login_attempt_user:
+            self.error_label.config(text="Login session expired. Please start over.")
+            # Send the user back to the beginning to be safe.
+            self.root.after(2000, self.show_home_screen) 
+            return
+    
         username = self.login_attempt_user.get('username')
+
         if not username or not password:
             self.error_label.config(text="An error occurred."); return
 
         response = self.api.login(username, password)
         if response.get("login_success"):
             self.currently_logged_in_user = response.get("user_details")
-            self.login_attempt_user = None
-            self.show_logged_in_screen()
+            self.login_attempt_user = None # Clear the attempt on success
+            
+           
+            self.show_home_screen() 
         else:
             self.error_label.config(text=response.get("message", "Incorrect Password."))
             self.password_entry.delete(0, 'end')
+
+    def show_logged_in_screen(self):
+        """
+        Displays the main screen after a successful login, showing the
+        authenticated token's information.
+        """
+        self._update_nav_selection("home")
+        # Adjusting card height to better fit the new content
+        card = self._create_main_card(width=500, height=420)
+        
+        # Use a wrapper frame to easily center all the content
+        content_wrapper = tk.Frame(card, bg=CARD_BG_COLOR)
+        content_wrapper.pack(expand=True, pady=20)
+
+        # 1. Display the USB image
+        tk.Label(content_wrapper, image=self.usb_img, bg=CARD_BG_COLOR).pack(pady=(0, 20))
+
+        # 2. Display the Token ID
+        tk.Label(content_wrapper, text="Token ID:", font=self.font_normal, fg=TEXT_COLOR, bg=CARD_BG_COLOR).pack()
+        tk.Label(content_wrapper, text=self.token_id, font=self.font_large, fg=TEXT_COLOR, bg=CARD_BG_COLOR).pack(pady=(5, 25))
+
+        # 3. Add the button to redirect to Manage Applications
+        tk.Button(
+            content_wrapper, 
+            text="Manage Applications", 
+            font=self.font_normal, 
+            bg=BUTTON_LIGHT_COLOR, 
+            fg=BUTTON_LIGHT_TEXT_COLOR, 
+            relief="flat",
+            padx=20, 
+            pady=5, 
+            command=self.show_applications_screen # This redirects the user
+        ).pack()
+
+    def logout(self):
+        """Logs the user out and returns to the initial 'Welcome' screen."""
+        self.currently_logged_in_user = None
+        # Go back to the very first screen
+        self.show_insert_key_screen()
 
     # --- Manage Applications Screen ---
     def show_applications_screen(self):
@@ -339,9 +401,12 @@ class KeyVoxApp:
         tk.Button(card,text="Finish",font=self.font_normal,bg=BUTTON_LIGHT_COLOR,fg=BUTTON_LIGHT_TEXT_COLOR,relief="flat",padx=30,pady=5,command=self._finish_enrollment).grid(row=len(summary_data)+2,column=0,columnspan=2,pady=30)
     
     def _finish_enrollment(self):
-        messagebox.showinfo("Success", "New user enrollment complete! Please log in.");
-        self.just_enrolled = True; self.enrollment_state = 'not_started'
-        self.show_insert_key_screen()
+        messagebox.showinfo("Success", "New user enrollment complete! Please log in.")
+        # We need to remember who just enrolled.
+        self.just_enrolled_username = self.new_enrollment_data.get("username")
+        self.just_enrolled = True
+        self.enrollment_state = 'not_started'
+        self.show_home_screen()
 
     # --- AUDIO & UTILITIES ---
     def _record_audio_blocking(self, filepath, duration=4):

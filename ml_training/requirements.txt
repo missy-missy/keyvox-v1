@@ -1,5 +1,0 @@
-numpy               # For all numerical and array operations (used by librosa, scipy)
-scipy               # For saving audio files (.wav format)
-librosa             # For audio analysis and MFCC feature extraction
-sounddevice         # For capturing live audio from the microphone
-pygame              # For creating the simple GUI of the recorder script
