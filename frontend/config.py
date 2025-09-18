@@ -1,0 +1,17 @@
+# --- UI Configuration ---
+GRADIENT_TOP_COLOR = "#5e213f"
+GRADIENT_BOTTOM_COLOR = "#983a62"
+CARD_BG_COLOR = "#6a2f4b"
+TEXT_COLOR = "#ffffff"
+BUTTON_COLOR = "#c8356e"
+BUTTON_LIGHT_COLOR = "#f0f0f0"
+BUTTON_LIGHT_TEXT_COLOR = "#333333"
+ERROR_COLOR = "#ff6b6b"
+FONT_FAMILY = "Segoe UI"
+PLACEHOLDER_COLOR = "#333333"
+
+# --- Frontend Configuration ---
+AUDIO_DIR = "temp_audio"
+CHUNK = 1024
+CHANNELS = 1
+RATE = 44100
