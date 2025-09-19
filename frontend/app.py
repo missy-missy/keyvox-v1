@@ -14,8 +14,6 @@ class KeyVoxApp:
     def __init__(self, root):
         self.root = root
         self.api = APIClient()
-
-        self._load_images()
         
         # --- Window and App Configuration ---
         self.width, self.height = 900, 600
@@ -24,6 +22,8 @@ class KeyVoxApp:
         self.root.resizable(False, False)
         if not os.path.exists(config.AUDIO_DIR):
             os.makedirs(config.AUDIO_DIR)
+
+        self._load_images()
             
         # --- State Management ---
         self.currently_logged_in_user = None
@@ -51,7 +51,7 @@ class KeyVoxApp:
         # --- Build Core UI ---
         self.canvas = tk.Canvas(root, width=self.width, height=self.height, highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
-        ui_helpers.create_gradient(self, config.GRADIENT_TOP_COLOR, config.GRADIENT_BOTTOM_COLOR)
+        ui_helpers.set_background_image(self) # <-- NEW LINE
         ui_helpers.create_header(self)
         
         self.content_frame = tk.Frame(self.canvas, bg="#7c2e50")
@@ -72,6 +72,7 @@ class KeyVoxApp:
             mic_path = os.path.join(script_dir, "assets", "images", "mic.png")
             otp_path = os.path.join(script_dir, "assets", "images", "otp_settings.png")
             usb_path = os.path.join(script_dir, "assets", "images", "usb.png")
+            bg_path = os.path.join(script_dir, "assets", "images", "bg.png")
 
             # Load images using the absolute paths
             self.logo_img = ImageTk.PhotoImage(Image.open(logo_path).resize((110, 110), Image.Resampling.LANCZOS))
@@ -79,7 +80,8 @@ class KeyVoxApp:
             self.mic_img = ImageTk.PhotoImage(Image.open(mic_path).resize((60, 60), Image.Resampling.LANCZOS))
             self.otp_img = ImageTk.PhotoImage(Image.open(otp_path).resize((60, 60), Image.Resampling.LANCZOS))
             self.usb_img = ImageTk.PhotoImage(Image.open(usb_path).resize((230, 230), Image.Resampling.LANCZOS))
-            
+            self.bg_img = ImageTk.PhotoImage(Image.open(bg_path).resize((self.width, self.height), Image.Resampling.LANCZOS))
+
         except FileNotFoundError as e:
             # The error message here will now show the full, correct path it was looking for
             messagebox.showerror("Asset Error", f"Image not found: {e.filename}\nPlease ensure 'frontend/assets/images' exists and contains all required images.")

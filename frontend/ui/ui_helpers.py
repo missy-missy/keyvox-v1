@@ -1,19 +1,11 @@
 import tkinter as tk
 import frontend_config as config
 
-def create_gradient(app, color1, color2):
-    """Fills the canvas with a vertical gradient."""
-    r1, g1, b1 = app.root.winfo_rgb(color1)
-    r2, g2, b2 = app.root.winfo_rgb(color2)
-    r_ratio = (r2 - r1) / app.height
-    g_ratio = (g2 - g1) / app.height
-    b_ratio = (b2 - b1) / app.height
-
-    for i in range(app.height):
-        nr = int(r1 + r_ratio * i)
-        ng = int(g1 + g_ratio * i)
-        nb = int(b1 + b_ratio * i)
-        app.canvas.create_line(0, i, app.width, i, fill=f"#{nr:04x}{ng:04x}{nb:04x}")
+def set_background_image(app):
+    """Sets the background image on the main canvas."""
+    # This function assumes 'app.bg_img' has already been loaded in the main app class.
+    # It places the image at coordinate (0, 0) with the anchor at the top-left corner.
+    app.canvas.create_image(0, 0, anchor="nw", image=app.bg_img)
 
 def create_header(app):
     """Creates the top header with logo, navigation, and status icons."""
