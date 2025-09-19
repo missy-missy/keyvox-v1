@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import os
-from .. import config
+import frontend_config as config
 from . import ui_helpers
 
 def show_username_entry_screen(app):

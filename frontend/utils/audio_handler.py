@@ -2,7 +2,7 @@ import os
 import wave
 import pyaudio
 import threading
-from .. import config
+import frontend_config as config
 
 # PyAudio format constant
 FORMAT = pyaudio.paInt16

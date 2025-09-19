@@ -5,10 +5,10 @@ import pyaudio
 from PIL import Image, ImageTk
 
 # Local module imports
-from .api_client import APIClient
-from . import config
-from .ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_screens
-from .utils import audio_handler, helpers
+from api_client import APIClient
+import frontend_config as config  
+from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_screens
+from utils import audio_handler, helpers
 
 class KeyVoxApp:
     def __init__(self, root):

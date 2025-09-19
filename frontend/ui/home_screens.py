@@ -1,5 +1,5 @@
 import tkinter as tk
-from .. import config
+import frontend_config as config
 from . import ui_helpers
 
 def show_home_screen(app, event=None):
