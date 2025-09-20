@@ -10,31 +10,74 @@ def navigate_to_enrollment(app, event=None):
 
 def show_enrollment_step1(app):
     """Shows the account setup form (name, username, password)."""
+    LIGHT_CARD_BG = "#7C2E50"
+
+    # --- Clear old widgets ---
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     app.enrollment_state = 'step1_account_setup'
     app.new_enrollment_data = {}
-    card = ui_helpers.create_main_card(app, width=700, height=450)
-    ui_helpers.update_nav_selection(app, "enrollment")
-    
-    tk.Label(card, text="STEP 1: Account Setup", font=app.font_large_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=0, column=0, columnspan=2, sticky="w", pady=(20, 5), padx=40)
-    tk.Label(card, text="Enter your basic account information", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=1, column=0, columnspan=2, sticky="w", pady=(0, 25), padx=40)
-    
-    fields = {"Full Name:": "full_name", "Username:": "username", "Email:": "email", "Password:": "password", "Confirm Password:": "confirm_password"}
+
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_subtitle = tkFont.Font(family="Poppins", size=10)
+    font_label = tkFont.Font(family="Poppins", size=11)
+    font_entry = tkFont.Font(family="Poppins", size=11)
+    font_small = tkFont.Font(family="Poppins", size=9)
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    card = tk.Frame(app.content_frame, width=700, height=400, bg=LIGHT_CARD_BG)
+    card.pack(pady=30)
+    card.pack_propagate(False)
+
+    tk.Label(card, text="STEP 1: Account Setup", font=font_title,
+             fg="white", bg=LIGHT_CARD_BG).grid(row=0, column=0, columnspan=2,
+                                               sticky="w", pady=(20, 5), padx=40)
+    tk.Label(card, text="Enter your basic account information",
+             font=font_subtitle, fg="white", bg=LIGHT_CARD_BG).grid(row=1, column=0,
+                                                                   columnspan=2,
+                                                                   sticky="w",
+                                                                   pady=(0, 20),
+                                                                   padx=40)
+
+    fields = {
+        "Full Name:": "full_name",
+        "Username:": "username",
+        "Email:": "email",
+        "Password:": "password",
+        "Confirm Password:": "confirm_password"
+    }
+
     app.entry_widgets = {}
     for i, (label, key) in enumerate(fields.items()):
-        tk.Label(card, text=label, font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=i + 2, column=0, sticky="w", pady=8, padx=(40, 20))
-        entry = tk.Entry(card, font=app.font_large, width=25, bg=config.GRADIENT_TOP_COLOR, fg=config.TEXT_COLOR, relief="solid", bd=1)
+        tk.Label(card, text=label, font=font_label,
+                 fg="white", bg=LIGHT_CARD_BG).grid(row=i + 2, column=0,
+                                                    sticky="w", pady=6,
+                                                    padx=(40, 20))
+
+        entry = tk.Entry(card, font=font_entry, width=25,
+                         bg="white", fg="black", relief="flat", bd=0,
+                         insertbackground="black")
         app.entry_widgets[key] = entry
         if "Password" in label:
             entry.config(show="*")
-        entry.grid(row=i + 2, column=1, pady=8, ipady=4, padx=(0, 40))
-        
-    app.enroll_error_label = tk.Label(card, text="", font=app.font_small, fg=config.ERROR_COLOR, bg=config.CARD_BG_COLOR)
-    app.enroll_error_label.grid(row=len(fields) + 2, column=0, columnspan=2, pady=(10, 0))
-    
-    bf = tk.Frame(app.content_frame, bg="#7c2e50")
+        entry.grid(row=i + 2, column=1, pady=6, ipady=4, padx=(0, 40))
+
+    app.enroll_error_label = tk.Label(card, text="", font=font_small,
+                                      fg="red", bg=LIGHT_CARD_BG)
+    app.enroll_error_label.grid(row=len(fields) + 2, column=0, columnspan=2,
+                                pady=(10, 0))
+
+    bf = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     bf.pack(fill="x", padx=60, pady=(0, 10))
-    tk.Label(bf, text="● ○ ○", font=app.font_large, fg=config.TEXT_COLOR, bg="#7c2e50").pack(side="left")
-    tk.Button(bf, text="Next Step →", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=15, pady=5, command=app._validate_step1).pack(side="right")
+
+    tk.Label(bf, text="● ○ ○", font=font_label,
+             fg="white", bg=LIGHT_CARD_BG).pack(side="left")
+
+    tk.Button(bf, text="Next Step →", font=font_button,
+              bg="#F5F5F5", fg="black", relief="flat", padx=12, pady=4,
+              command=app._validate_step1).pack(side="right")
 
 def validate_step1(app):
     """Validates the user registration form and sends data to the API."""
@@ -58,38 +101,97 @@ def validate_step1(app):
 
 def show_enrollment_step2(app):
     """Shows the introduction screen for the voice enrollment part."""
+    LIGHT_CARD_BG = "#7C2E50"
+
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     app.enrollment_state = 'step2_voice_intro'
-    card = ui_helpers.create_main_card(app, width=700, height=350)
-    
-    tk.Label(card, text="STEP 2: Voice Authentication", font=app.font_large_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(anchor="w", pady=(20, 5), padx=40)
-    tk.Label(card, text="Record your voice for added security. You will record 5 phrases.\nThis allows the system to recognize your unique voiceprint.", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, justify="left").pack(anchor="w", pady=(0, 25), padx=40)
-    
-    bf = tk.Frame(app.content_frame, bg="#7c2e50")
+
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_subtitle = tkFont.Font(family="Poppins", size=10)
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    card = tk.Frame(app.content_frame, width=500, height=300, bg=LIGHT_CARD_BG)
+    card.pack(pady=30)
+    card.pack_propagate(False)
+
+    tk.Label(card, text="STEP 2: Voice Authentication", font=font_title,
+             fg="white", bg=LIGHT_CARD_BG).pack(anchor="w",
+                                                pady=(20, 5), padx=40)
+
+    tk.Label(card,
+             text="Record your voice for added security.\nYou will record 5 phrases to create your voiceprint.",
+             font=font_subtitle, fg="white", bg=LIGHT_CARD_BG,
+             justify="left", wraplength=600).pack(anchor="w",
+                                                  pady=(0, 25), padx=40)
+
+    bf = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     bf.pack(fill="x", padx=60, pady=(0, 10))
-    tk.Button(bf, text="< Back", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=15, pady=5, command=lambda: show_enrollment_step1(app)).pack(side="left")
-    tk.Label(bf, text="○ ● ○", font=app.font_large, fg=config.TEXT_COLOR, bg="#7c2e50").pack(side="left", padx=20)
-    tk.Button(bf, text="Start →", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=15, pady=5, command=lambda: show_enrollment_voice_record(app)).pack(side="right")
+
+    tk.Button(bf, text="< Back", font=font_button,
+              bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+              relief="flat", padx=12, pady=4,
+              command=lambda: show_enrollment_step1(app)).pack(side="left")
+
+    tk.Label(bf, text="○ ● ○", font=font_subtitle,
+             fg="white", bg=LIGHT_CARD_BG).pack(side="left", padx=20)
+
+    tk.Button(bf, text="Start →", font=font_button,
+              bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+              relief="flat", padx=12, pady=4,
+              command=lambda: show_enrollment_voice_record(app)).pack(side="right")
 
 def show_enrollment_voice_record(app):
     """The main screen for recording the enrollment phrases."""
+    LIGHT_CARD_BG = "#7C2E50"
+
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     app.enrollment_state = 'step3_voice_record'
-    card = ui_helpers.create_main_card(app, width=600, height=350)
-    
-    tk.Label(card, text=f"{app.current_phrase_index + 1} of {len(app.enrollment_phrases)}:", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(20, 0))
-    tk.Label(card, text=f'"{app.enrollment_phrases[app.current_phrase_index]}"', font=app.font_large_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=500).pack(expand=True)
-    
-    mic_label = tk.Label(card, image=app.mic_img, bg=config.CARD_BG_COLOR, highlightthickness=0, cursor="hand2")
+
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=12, weight="bold")
+    font_text = tkFont.Font(family="Poppins", size=10)
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    card = tk.Frame(app.content_frame, width=500, height=300, bg=LIGHT_CARD_BG)
+    card.pack(pady=30)
+    card.pack_propagate(False)
+
+    tk.Label(card, text=f"{app.current_phrase_index + 1} of {len(app.enrollment_phrases)}",
+             font=font_text, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 0))
+
+    tk.Label(card, text=f'"{app.enrollment_phrases[app.current_phrase_index]}"',
+             font=font_title, fg="white", bg=LIGHT_CARD_BG,
+             wraplength=600).pack(expand=True)
+
+    mic_label = tk.Label(card, image=app.mic_img, bg=LIGHT_CARD_BG,
+                         highlightthickness=0, cursor="hand2")
     mic_label.pack(pady=10)
     mic_label.bind("<Button-1>", app.toggle_recording)
-    
-    app.recording_status_label = tk.Label(card, text="Click the mic to record", font=app.font_small, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR)
+
+    app.recording_status_label = tk.Label(card, text="Click the mic to record",
+                                          font=font_text, fg="white", bg=LIGHT_CARD_BG)
     app.recording_status_label.pack(pady=(0, 20))
-    
-    bf = tk.Frame(app.content_frame, bg="#7c2e50")
+
+    bf = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     bf.pack(fill="x", padx=60, pady=(0, 10))
-    tk.Button(bf, text="< Back", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=15, pady=5, command=app._go_back_phrase).pack(side="left")
-    app.next_btn = tk.Button(bf, text="Next →", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=15, pady=5, command=app._go_next_phrase, state="disabled")
+
+    tk.Button(bf, text="< Back", font=font_button,
+              bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+              relief="flat", padx=12, pady=4,
+              command=lambda: go_back_phrase(app)).pack(side="left")
+
+    app.next_btn = tk.Button(bf, text="Next →", font=font_button,
+                             bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+                             relief="flat", padx=12, pady=4,
+                             command=lambda: go_next_phrase(app),
+                             state="disabled")
     app.next_btn.pack(side="right")
+
 
 def go_back_phrase(app):
     """Navigates to the previous phrase or step in enrollment."""
@@ -123,11 +225,29 @@ def handle_final_enrollment_upload(app):
 
 def show_enrollment_summary(app):
     """Displays a summary of the successfully enrolled user's details."""
-    card = ui_helpers.create_main_card(app, width=700, height=450)
-    
-    tk.Label(card, text="Enrollment Process Complete", font=app.font_large_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=0, column=0, columnspan=2, sticky="w", pady=(20, 5), padx=40)
-    tk.Label(card, text="You've successfully enrolled. Your credentials are now securely registered.", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, justify="left").grid(row=1, column=0, columnspan=2, sticky="w", pady=(0, 25), padx=40)
-    
+    LIGHT_CARD_BG = "#7C2E50"
+
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_text = tkFont.Font(family="Poppins", size=11)
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    card = tk.Frame(app.content_frame, width=500, height=300, bg=LIGHT_CARD_BG)
+    card.pack(pady=30)
+    card.pack_propagate(False)
+
+    tk.Label(card, text="Enrollment Process Complete", font=font_title,
+             fg="white", bg=LIGHT_CARD_BG).grid(row=0, column=0, columnspan=2,
+                                               sticky="w", pady=(20, 5), padx=40)
+    tk.Label(card,
+             text="You've successfully enrolled. Your credentials are now securely registered.",
+             font=font_text, fg="white", bg=LIGHT_CARD_BG, justify="left",
+             wraplength=600).grid(row=1, column=0, columnspan=2, sticky="w",
+                                  pady=(0, 25), padx=40)
+
     summary_data = {
         "Full Name:": app.new_enrollment_data.get('full_name'),
         "Username:": app.new_enrollment_data.get('username'),
@@ -135,11 +255,22 @@ def show_enrollment_summary(app):
         "Email:": app.new_enrollment_data.get('email'),
         "Voice Pattern:": "Saved"
     }
+
     for i, (label, value) in enumerate(summary_data.items()):
-        tk.Label(card, text=label, font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=i + 2, column=0, sticky="w", pady=5, padx=40)
-        tk.Label(card, text=value, font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).grid(row=i + 2, column=1, sticky="w", pady=5, padx=20)
-        
-    tk.Button(card, text="Finish", font=app.font_normal, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=30, pady=5, command=app._finish_enrollment).grid(row=len(summary_data) + 2, column=0, columnspan=2, pady=30)
+        tk.Label(card, text=label, font=font_text,
+                 fg="white", bg=LIGHT_CARD_BG).grid(row=i + 2, column=0,
+                                                    sticky="w", pady=5, padx=40)
+        tk.Label(card, text=value, font=font_text,
+                 fg="white", bg=LIGHT_CARD_BG).grid(row=i + 2, column=1,
+                                                    sticky="w", pady=5, padx=20)
+
+    tk.Button(card, text="Finish", font=font_button,
+              bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+              relief="flat", padx=30, pady=5,
+              command=app._finish_enrollment).grid(row=len(summary_data) + 2,
+                                                   column=0, columnspan=2,
+                                                   pady=30)
+
 
 def finish_enrollment(app):
     """Finalizes enrollment and redirects to the home screen for login."""
