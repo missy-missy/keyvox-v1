@@ -6,22 +6,85 @@ from . import ui_helpers
 
 def show_username_entry_screen(app):
     """Shows the screen for the user to enter their username."""
+    LIGHT_CARD_BG = "#7C2E50"
+
+    # --- Clear old widgets ---
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     app.login_flow_state = 'username_entry'
-    card = ui_helpers.create_main_card(app, width=500, height=350)
-    
-    content_wrapper = tk.Frame(card, bg=config.CARD_BG_COLOR)
+
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=16, weight="bold")
+    font_subtitle = tkFont.Font(family="Poppins", size=10)
+    font_entry = tkFont.Font(family="Poppins", size=11)
+    font_small = tkFont.Font(family="Poppins", size=9)
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    # --- Card ---
+    card = tk.Frame(app.content_frame, width=420, height=300, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+    card.pack(pady=50)
+    card.pack_propagate(False)
+
+    content_wrapper = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
     content_wrapper.pack(expand=True)
-    
-    tk.Label(content_wrapper, text="Enter Username", font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(20, 10))
-    
-    app.username_error_label = tk.Label(content_wrapper, text="", font=app.font_small, fg=config.ERROR_COLOR, bg=config.CARD_BG_COLOR)
-    app.username_error_label.pack(pady=(0, 10))
-    
-    app.username_entry = tk.Entry(content_wrapper, font=app.font_large, fg=config.TEXT_COLOR, bg=config.GRADIENT_TOP_COLOR, width=25, relief="solid", borderwidth=1, justify="center")
-    app.username_entry.pack(pady=10, ipady=5)
+
+    # --- Title & Subtitle (centered) ---
+    tk.Label(
+        content_wrapper, text="Login", font=font_title,
+        fg="white", bg=LIGHT_CARD_BG
+    ).pack(pady=(20, 5))
+
+    tk.Label(
+        content_wrapper, text="Enter your username to continue",
+        font=font_subtitle, fg="white", bg=LIGHT_CARD_BG
+    ).pack(pady=(0, 20))
+
+    # --- Username Entry ---
+    app.username_entry = tk.Entry(
+        content_wrapper, font=font_entry, width=25,
+        bg="white", fg="black", relief="flat", bd=0,
+        insertbackground="black", justify="center"
+    )
+    app.username_entry.pack(pady=6, ipady=4)
     app.username_entry.focus_set()
-    
-    tk.Button(content_wrapper, text="Continue", font=app.font_normal, bg=config.BUTTON_COLOR, fg=config.TEXT_COLOR, relief="flat", padx=20, pady=5, command=app._handle_username_submit).pack(pady=(20, 15))
+
+    # --- Error Label ---
+    app.username_error_label = tk.Label(
+        content_wrapper, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG
+    )
+    app.username_error_label.pack(pady=(10, 0))
+
+    # --- Continue Button (rounded, centered) ---
+    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
+        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
+        wrapper.pack(pady=(20, 10))
+
+        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat")
+        canvas.pack()
+
+        x1, y1, x2, y2 = 2, 2, width-2, height-2
+
+        # Rounded rectangle
+        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
+
+        # Centered text
+        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=font_button)
+
+        def on_click(event):
+            if command:
+                command()
+        canvas.tag_bind(btn_text, "<Button-1>", on_click)
+        canvas.bind("<Button-1>", on_click)
+
+        return wrapper
+
+    create_rounded_button(content_wrapper, "Continue", command=app._handle_username_submit)
 
 def handle_username_submit(app):
     """Validates the entered username with the backend."""
@@ -42,19 +105,75 @@ def handle_username_submit(app):
 
 def show_login_voice_auth_screen(app):
     """Shows the voice recording UI for login verification."""
+    LIGHT_CARD_BG = "#7C2E50"
+
+    # --- Clear old widgets ---
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
     app.login_flow_state = 'voice_auth'
-    card = ui_helpers.create_main_card(app, width=600, height=350)
-    username = app.login_attempt_user.get("username", "user")
-    
-    tk.Label(card, text=f'Welcome, {username}!', font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(30, 10))
-    tk.Label(card, text=f'Please say "My voice is my password"', font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=500).pack(expand=True)
-    
-    mic_label = tk.Label(card, image=app.mic_img, bg=config.CARD_BG_COLOR, cursor="hand2")
-    mic_label.pack(expand=True)
+    username = app.login_attempt_user.get("username", "User")
+
+    # --- Fonts ---
+    import tkinter.font as tkFont
+    font_title = tkFont.Font(family="Poppins", size=16, weight="bold")
+    font_subtitle = tkFont.Font(family="Poppins", size=12)
+    font_label = tkFont.Font(family="Poppins", size=11)
+    font_small = tkFont.Font(family="Poppins", size=10)
+    font_button = tkFont.Font(family="Poppins", size=11)
+
+    # --- Centering trick for the whole content ---
+    app.content_frame.grid_rowconfigure(0, weight=1)
+    app.content_frame.grid_columnconfigure(0, weight=1)
+
+    # --- Main Card (moderate size) ---
+    card = tk.Frame(app.content_frame, width=500, height=400, bg=LIGHT_CARD_BG)
+    card.grid(row=0, column=0, sticky="nsew")
+    card.grid_propagate(False)
+
+    # Grid balance inside card
+    for r in range(6):
+        card.grid_rowconfigure(r, weight=1)
+    card.grid_columnconfigure(0, weight=1)
+
+    # --- Title (extra top margin) ---
+    tk.Label(
+        card, text=f"Welcome, {username}!", font=font_title,
+        fg="white", bg=LIGHT_CARD_BG
+    ).grid(row=0, column=0, pady=(40, 10), sticky="n")  # ⬅ increased top padding
+
+    # --- Instruction ---
+    tk.Label(
+        card, text='Please say: "My voice is my password"',
+        font=font_subtitle, fg="#F5C6E0",
+        bg=LIGHT_CARD_BG, wraplength=600, justify="center"
+    ).grid(row=1, column=0, pady=(1, 10), sticky="n")
+
+    # --- Mic Icon ---
+    mic_label = tk.Label(card, image=app.mic_img, bg=LIGHT_CARD_BG, cursor="hand2")
+    mic_label.grid(row=2, column=0, pady=(10, 10))
     mic_label.bind("<Button-1>", app._handle_login_voice_record)
-    
-    app.recording_status_label = tk.Label(card, text="Click the mic to authenticate", font=app.font_small, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR)
-    app.recording_status_label.pack(pady=(0, 20))
+
+    # --- Status Label ---
+    app.recording_status_label = tk.Label(
+        card, text="Click the mic to authenticate",
+        font=font_small, fg="white", bg=LIGHT_CARD_BG
+    )
+    app.recording_status_label.grid(row=3, column=0, pady=(5, 10))
+
+    # --- Spacer ---
+    tk.Label(card, text="", bg=LIGHT_CARD_BG).grid(row=4, column=0)
+
+    # --- Bottom Frame ---
+    bf = tk.Frame(card, bg=LIGHT_CARD_BG)
+    bf.grid(row=5, column=0, sticky="ew", padx=60, pady=(10, 20))
+
+    tk.Button(
+        bf, text="Cancel", font=font_button,
+        bg="#F5F5F5", fg="black", relief="flat",
+        padx=15, pady=6, command=app.show_insert_key_screen
+    ).pack(side="right")
+
 
 def handle_login_voice_record(app, event=None):
     """Handles the recording and API verification for voice login."""
@@ -85,20 +204,80 @@ def handle_login_voice_record(app, event=None):
 def show_password_screen(app):
     """Shows the final password entry screen."""
     app.login_flow_state = 'password_entry'
-    card = ui_helpers.create_main_card(app, width=500, height=350)
-    
-    content_wrapper = tk.Frame(card, bg=config.CARD_BG_COLOR)
+    LIGHT_CARD_BG = "#7C2E50"
+
+    # --- Card ---
+    card = ui_helpers.create_main_card(app, width=420, height=300)
+    card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+    content_wrapper = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
     content_wrapper.pack(expand=True)
-    
-    tk.Label(content_wrapper, text="Enter Password", font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(20, 10))
-    app.error_label = tk.Label(content_wrapper, text="", font=app.font_small, fg=config.ERROR_COLOR, bg=config.CARD_BG_COLOR)
+
+    # --- Title ---
+    tk.Label(
+        content_wrapper,
+        text="Enter Password",
+        font=app.font_large,
+        fg="white",
+        bg=LIGHT_CARD_BG
+    ).pack(pady=(20, 10))
+
+    # --- Error Label ---
+    app.error_label = tk.Label(
+        content_wrapper,
+        text="",
+        font=app.font_small,
+        fg=config.ERROR_COLOR,
+        bg=LIGHT_CARD_BG
+    )
     app.error_label.pack(pady=(0, 10))
-    
-    app.password_entry = tk.Entry(content_wrapper, font=app.font_large, fg=config.TEXT_COLOR, bg=config.GRADIENT_TOP_COLOR, show="*", width=25, relief="solid", borderwidth=1, justify="center")
+
+    # --- Password Entry ---
+    app.password_entry = tk.Entry(
+        content_wrapper,
+        font=app.font_large,
+        fg="black",
+        bg="white",
+        show="*",
+        width=25,
+        relief="flat",
+        bd=0,
+        justify="center",
+        insertbackground="black"
+    )
     app.password_entry.pack(pady=10, ipady=5)
     app.password_entry.focus_set()
-    
-    tk.Button(content_wrapper, text="Confirm Login", font=app.font_normal, bg=config.BUTTON_COLOR, fg=config.TEXT_COLOR, relief="flat", padx=20, pady=5, command=app._check_password).pack(pady=(20, 15))
+
+    # --- Rounded "Confirm Login" Button ---
+    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
+        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
+        wrapper.pack(pady=(20, 15))
+
+        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat")
+        canvas.pack()
+
+        x1, y1, x2, y2 = 2, 2, width-2, height-2
+
+        # Rounded rectangle
+        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
+
+        # Centered text
+        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
+
+        def on_click(event):
+            if command:
+                command()
+        canvas.tag_bind(btn_text, "<Button-1>", on_click)
+        canvas.bind("<Button-1>", on_click)
+
+        return wrapper
+
+    create_rounded_button(content_wrapper, "Confirm Login", command=app._check_password)
 
 def check_password(app):
     """Validates the password with the backend to complete the login."""

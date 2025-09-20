@@ -2,77 +2,169 @@ import tkinter as tk
 from tkinter import font, messagebox
 import frontend_config as config
 from . import ui_helpers
+from PIL import Image, ImageTk
 
 def show_applications_screen(app):
-    """Shows the application management screen for a logged-in user."""
+    """Shows the application management screen for a logged-in user with modern card + rounded button style."""
     ui_helpers.update_nav_selection(app, "applications")
+
+    LIGHT_CARD_BG = "#7C2E50"
+
+    # If not logged in
     if not app.currently_logged_in_user:
         card = ui_helpers.create_main_card(app, width=600, height=300)
-        tk.Label(card, text="Please log in to manage application settings.", font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=400).pack(expand=True)
+        card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+        tk.Label(
+            card,
+            text="Please log in to manage application settings.",
+            font=app.font_large,
+            fg=config.TEXT_COLOR,
+            bg=LIGHT_CARD_BG,
+            wraplength=400
+        ).pack(expand=True)
         return
-    
+
     user = app.currently_logged_in_user
-    card = ui_helpers.create_main_card(app, width=780, height=380)
-    cards_frame = tk.Frame(card, bg=config.CARD_BG_COLOR)
-    cards_frame.pack(expand=True)
-    
-    # Helper to create the cards
-    def _create_app_card(parent):
-        c = tk.Frame(parent, bg=config.CARD_BG_COLOR, width=220, height=280, relief="solid", bd=1)
-        c.pack(side="left", padx=15, pady=20)
+
+    # --- Main Card ---
+    card = ui_helpers.create_main_card(app, width=820, height=420)
+    card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+    # Title
+    tk.Label(
+        card,
+        text="Manage Applications",
+        font=app.font_large,
+        fg=config.TEXT_COLOR,
+        bg=LIGHT_CARD_BG
+    ).pack(pady=(20, 10))
+
+    # Wrapper for cards
+    cards_frame = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+    cards_frame.pack(expand=True, pady=10)
+
+    # --- Helper to create consistent cards ---
+    def _create_app_card(parent, icon, title, details, button_text, button_command):
+        c = tk.Frame(parent, bg=config.CARD_BG_COLOR, width=230, height=300, relief="flat", bd=0)
+        c.pack(side="left", padx=15, pady=10)
         c.pack_propagate(False)
+
+        # Icon
+        tk.Label(c, image=icon, bg=config.CARD_BG_COLOR).pack(pady=(20, 10))
+        # Title
+        tk.Label(c, text=title, font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack()
+        # Details
+        for line in details:
+            tk.Label(c, text=line, font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=200).pack(pady=3)
+
+        # Button
+        tk.Button(
+            c,
+            text=button_text,
+            font=app.font_small,
+            bg=config.BUTTON_LIGHT_COLOR,
+            fg=config.BUTTON_LIGHT_TEXT_COLOR,
+            relief="flat",
+            padx=12, pady=6,
+            command=button_command
+        ).pack(side=tk.BOTTOM, pady=15)
+
         return c
 
-    # Password Card
-    pw_card = _create_app_card(cards_frame)
-    tk.Label(pw_card, image=app.key_img, bg=config.CARD_BG_COLOR).pack(pady=(20, 0))
-    tk.Label(pw_card, text="Password", font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(10, 5))
-    tk.Label(pw_card, text="********", font=app.font_large, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=5)
-    tk.Button(pw_card, text="Edit Password", font=app.font_small, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="solid", bd=1, padx=10, command=lambda: messagebox.showinfo("Info", "Password management is a future feature.")).pack(side=tk.BOTTOM, pady=(10, 15))
-    
-    # Voice Biometrics Card
+    # --- Password Card ---
+    _create_app_card(
+        cards_frame,
+        app.key_img,
+        "Password",
+        ["********"],
+        "Edit Password",
+        lambda: messagebox.showinfo("Info", "Password management is a future feature.")
+    )
+
+    # --- Voice Biometrics Card ---
     voice_status = "Enrolled" if user.get('voiceprint_path') else "Not Enrolled"
-    voice_card = _create_app_card(cards_frame)
-    tk.Label(voice_card, image=app.mic_img, bg=config.CARD_BG_COLOR).pack(pady=(20, 0))
-    tk.Label(voice_card, text="Voice Biometrics", font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(10, 5))
-    tk.Label(voice_card, text=f"Status: {voice_status}", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=5)
-    tk.Button(voice_card, text="Edit Biometrics", font=app.font_small, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="solid", bd=1, padx=10, command=app.navigate_to_enrollment).pack(side=tk.BOTTOM, pady=(10, 15))
-    
-    # OTP Settings Card
+    _create_app_card(
+        cards_frame,
+        app.mic_img,
+        "Voice Biometrics",
+        [f"Status: {voice_status}"],
+        "Edit Biometrics",
+        app.navigate_to_enrollment
+    )
+
+    # --- OTP Settings Card ---
     masked_email = app._mask_email(user.get('email', ''))
-    otp_card = _create_app_card(cards_frame)
-    tk.Label(otp_card, image=app.otp_img, bg=config.CARD_BG_COLOR).pack(pady=(20, 0))
-    tk.Label(otp_card, text="OTP Settings", font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(10, 5))
-    tk.Label(otp_card, text="Account:", font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(5, 0))
-    tk.Label(otp_card, text=masked_email, font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack(pady=(0, 5))
-    tk.Button(otp_card, text="Edit Email Address", font=app.font_small, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="solid", bd=1, padx=10, command=lambda: messagebox.showinfo("Info", "Email management is a future feature.")).pack(side=tk.BOTTOM, pady=(10, 15))
+    _create_app_card(
+        cards_frame,
+        app.otp_img,
+        "OTP Settings",
+        ["Account:", masked_email],
+        "Edit Email Address",
+        lambda: messagebox.showinfo("Info", "Email management is a future feature.")
+    )
 
 
 def show_about_screen(app, event=None):
-    """Displays the About Us screen."""
+    """Displays the About Us screen with an icon + modern card design."""
     ui_helpers.update_nav_selection(app, None)
-    INFO_CARD_BG, INFO_CARD_TEXT = "#e9e3e6", "#3b3b3b"
-    card = ui_helpers.create_main_card(app, width=820, height=480)
-    card.config(bg=INFO_CARD_BG, relief="flat", bd=0, highlightthickness=0)
-    
-    content_frame = tk.Frame(card, bg=INFO_CARD_BG)
-    content_frame.pack(expand=True)
-    
-    title_font = font.Font(family=config.FONT_FAMILY, size=22, weight="bold")
-    tk.Label(content_frame, text="About Us", font=title_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left").pack(anchor="w", pady=(0, 20))
-    
-    body_font = font.Font(family=config.FONT_FAMILY, size=12)
-    about_text = "KeyVox is a new plug-and-play hardware authentication token that uses your unique voice as a robust and secure second factor of authentication (2FA), powered by advanced LSTM neural networks. The key is designed to work with multi-protocol systems such as FIDO U2F, OATH TOTP, challenge response system."
-    tk.Label(content_frame, text=about_text, font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left", wraplength=720).pack(anchor="w", pady=(0, 30))
-    
-    subtitle_font = font.Font(family=config.FONT_FAMILY, size=16, weight="bold")
-    tk.Label(content_frame, text="How Voice Authentication Works", font=subtitle_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left").pack(anchor="w", pady=(0, 15))
-    tk.Label(content_frame, text="KeyVox uses LSTM-based voice biometrics to:", font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left").pack(anchor="w", pady=(0, 10))
-    
-    bullets = ["Analyze and learn the unique patterns in your voice.", "Match live voice input against your stored encrypted voiceprint.", "Authenticate only if the match is within the secure threshold."]
-    for bullet in bullets:
-        tk.Label(content_frame, text=f"  •  {bullet}", font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left", wraplength=700).pack(anchor="w", pady=2)
 
+    LIGHT_CARD_BG = "#7C2E50"
+    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_TEXT = "#ffffff"
+
+    card = ui_helpers.create_main_card(app, width=820, height=480)
+    card.config(bg=LIGHT_CARD_BG, relief="flat", bd=0, highlightthickness=0)
+
+    content_frame = tk.Frame(card, bg=LIGHT_CARD_BG)
+    content_frame.pack(expand=True, pady=20, padx=30, fill="both")
+
+    # --- Title Row with Icon ---
+    title_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
+    title_frame.pack(anchor="w", pady=(0, 20))
+
+    icon_font = font.Font(family=config.FONT_FAMILY, size=24, weight="bold")
+    title_font = font.Font(family=config.FONT_FAMILY, size=22, weight="bold")
+
+    tk.Label(title_frame, text="ℹ️", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
+    tk.Label(title_frame, text="About Us", font=title_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left")
+
+    # --- About Text Card ---
+    about_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
+    about_card.pack(pady=(0, 25), fill="x")
+
+    body_font = font.Font(family=config.FONT_FAMILY, size=12)
+    about_text = (
+        "KeyVox is a plug-and-play hardware authentication token that uses "
+        "your unique voice as a robust and secure second factor of authentication (2FA), "
+        "powered by advanced LSTM neural networks.\n\n"
+        "The key is designed to work with multi-protocol systems such as "
+        "FIDO U2F, OATH TOTP, and challenge-response systems."
+    )
+    tk.Label(
+        about_card, text=about_text,
+        font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG,
+        justify="left", wraplength=720
+    ).pack(padx=20, pady=20, anchor="w")
+
+    # --- Subtitle + Bullets ---
+    subtitle_font = font.Font(family=config.FONT_FAMILY, size=16, weight="bold")
+    tk.Label(
+        content_frame, text="How Voice Authentication Works",
+        font=subtitle_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG
+    ).pack(anchor="w", pady=(0, 15))
+
+    bullets = [
+        "Analyze and learn the unique patterns in your voice.",
+        "Match live voice input against your stored encrypted voiceprint.",
+        "Authenticate only if the match is within the secure threshold."
+    ]
+    for bullet in bullets:
+        tk.Label(
+            content_frame, text=f"• {bullet}",
+            font=body_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG,
+            justify="left", wraplength=700
+        ).pack(anchor="w", padx=40, pady=3)
 
 def show_help_screen(app, event=None):
     """Displays the Help/FAQ screen."""
@@ -108,3 +200,5 @@ def show_help_screen(app, event=None):
     security_tips = ["Enroll in a quiet environment for better accuracy.", "Update your voice model if you're sick or your voice changes significantly.", "Never share recordings of your voice used for authentication."]
     for i, tip in enumerate(security_tips, 1):
         tk.Label(right_frame, text=f"{i}. {tip}", font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, justify="left", wraplength=350).pack(anchor="w", pady=4)
+
+
