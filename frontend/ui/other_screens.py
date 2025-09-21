@@ -79,7 +79,7 @@ def show_applications_screen(app):
         "Password",
         ["********"],
         "Edit Password",
-        lambda: messagebox.showinfo("Info", "Password management is a future feature.")
+        app.show_change_password_screen
     )
 
     # --- Voice Biometrics Card ---
@@ -90,7 +90,7 @@ def show_applications_screen(app):
         "Voice Biometrics",
         [f"Status: {voice_status}"],
         "Edit Biometrics",
-        app.navigate_to_enrollment
+        app.show_edit_biometrics_screen
     )
 
     # --- OTP Settings Card ---
@@ -101,7 +101,7 @@ def show_applications_screen(app):
         "OTP Settings",
         ["Account:", masked_email],
         "Edit Email Address",
-        lambda: messagebox.showinfo("Info", "Email management is a future feature.")
+        app.show_otp_settings_screen
     )
 
 

@@ -9,6 +9,7 @@ from api_client import APIClient
 import frontend_config as config  
 from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_screens
 from utils import audio_handler, helpers
+from ui import application_settings
 
 class KeyVoxApp:
     def __init__(self, root):
@@ -54,7 +55,7 @@ class KeyVoxApp:
         ui_helpers.set_background_image(self) # <-- NEW LINE
         ui_helpers.create_header(self)
         
-        self.content_frame = tk.Frame(self.canvas, bg="#7c2e50")
+        self.content_frame = tk.Canvas(self.canvas, highlightthickness=0, bg=self.canvas.cget('bg'))
         self.canvas.create_window(self.width / 2, self.height / 2 + 60, window=self.content_frame, anchor="center")
         
         self.check_server_and_start()
@@ -127,6 +128,9 @@ class KeyVoxApp:
     def _go_back_phrase(self): enrollment_flow.go_back_phrase(self)
     def _go_next_phrase(self): enrollment_flow.go_next_phrase(self)
     def _finish_enrollment(self): enrollment_flow.finish_enrollment(self)
+    def show_change_password_screen(self): application_settings.show_change_password_screen(self)
+    def show_edit_biometrics_screen(self): application_settings.show_edit_biometrics_screen(self)
+    def show_otp_settings_screen(self): application_settings.show_otp_settings_screen(self)
 
     # --- Utility and Handler Methods ---
     # These methods call functions from the separated utility modules.

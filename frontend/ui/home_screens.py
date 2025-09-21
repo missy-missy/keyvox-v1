@@ -1,6 +1,7 @@
 import tkinter as tk
 import frontend_config as config
 from . import ui_helpers
+from PIL import Image, ImageTk
 
 def show_home_screen(app, event=None):
     """Acts as a router for the home screen based on login or enrollment state."""
@@ -87,7 +88,6 @@ def show_insert_key_screen(app):
         bg=LIGHT_CARD_BG
     ).pack(pady=(0, 0))
 
-from PIL import Image, ImageTk
 
 def show_logged_in_screen(app):
     """Displays the screen for a successfully logged-in user."""
