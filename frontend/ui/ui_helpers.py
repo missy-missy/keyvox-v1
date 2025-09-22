@@ -78,3 +78,25 @@ def create_main_card(app, width=600, height=400):
     card.pack(pady=20)
     card.pack_propagate(False)
     return card
+
+def create_rounded_button(parent, text, command, app=None, bg="#F5F5F5", fg="#000000"):
+    """Reusable rounded-style button."""
+    import tkinter.font as tkFont
+    font_button = tkFont.Font(family="Poppins", size=10)
+
+    btn = tk.Button(
+        parent,
+        text=text,
+        font=font_button,
+        bg=bg,
+        fg=fg,
+        relief="flat",
+        padx=16,
+        pady=6,
+        command=command
+    )
+    # Optional styling for rounded effect
+    btn.config(bd=0, highlightthickness=0)
+    btn.pack(pady=5)
+
+    return btn
