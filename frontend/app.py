@@ -82,8 +82,15 @@ class KeyVoxApp:
             self.otp_img = ImageTk.PhotoImage(Image.open(otp_path).resize((60, 60), Image.Resampling.LANCZOS))
             self.usb_img = ImageTk.PhotoImage(Image.open(usb_path).resize((230, 230), Image.Resampling.LANCZOS))
             self.bg_img = ImageTk.PhotoImage(Image.open(bg_path).resize((self.width, self.height), Image.Resampling.LANCZOS))
+            self.help_img = ImageTk.PhotoImage(
+                Image.open("assets/icons/help.png").resize((22, 22), Image.Resampling.LANCZOS)
+            )
+            self.info_img = ImageTk.PhotoImage(
+                Image.open("assets/icons/info.png").resize((22, 22), Image.Resampling.LANCZOS)
+            )
+            card_bg_path = os.path.join(script_dir, "assets", "images", "card_background.png")
 
-        except FileNotFoundError as e:
+        except FileNotFoundError as e: 
             # The error message here will now show the full, correct path it was looking for
             messagebox.showerror("Asset Error", f"Image not found: {e.filename}\nPlease ensure 'frontend/assets/images' exists and contains all required images.")
             self.root.destroy()
@@ -151,6 +158,13 @@ class KeyVoxApp:
         """Terminates PyAudio and destroys the root window."""
         self.pyaudio_instance.terminate()
         self.root.destroy()
+
+    def logout_user(self):
+        """Ask confirmation before logging out and exiting app."""
+        confirm = messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?")
+        if confirm:
+            self.root.quit()   # close mainloop (safe exit)
+            # OR: self.root.destroy()  # force close screen
         
 if __name__ == "__main__":
     root = tk.Tk()

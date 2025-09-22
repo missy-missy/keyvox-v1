@@ -13,27 +13,30 @@ def create_header(app):
     app.canvas.create_image(side_padding, line_y / 1.2, anchor="w", image=app.logo_img, tags="logo")
     
     current_x = app.width - side_padding
+
+    # Info icon
     info_tag = "info_icon"
-    info_rect_id = app.canvas.create_rectangle(current_x - 22, nav_y_center - 11, current_x, nav_y_center + 11, fill=config.PLACEHOLDER_COLOR, outline=config.PLACEHOLDER_COLOR, tags=info_tag)
-    app.canvas.create_text(current_x - 11, nav_y_center, text="i", font=("Arial", 12, "bold"), fill=config.TEXT_COLOR, tags=info_tag)
+    info_img_id = app.canvas.create_image(current_x - 11, nav_y_center, image=app.info_img, tags=info_tag)
     app.canvas.tag_bind(info_tag, "<Button-1>", app.show_about_screen)
     app.canvas.tag_bind(info_tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
     app.canvas.tag_bind(info_tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
+    bbox_info = app.canvas.bbox(info_img_id)
 
-    line_x1 = app.canvas.bbox(info_rect_id)[2]
+    # Help icon
     current_x -= 32 
     help_tag = "help_icon"
-    app.canvas.create_rectangle(current_x - 22, nav_y_center - 11, current_x, nav_y_center + 11, fill=config.PLACEHOLDER_COLOR, outline=config.PLACEHOLDER_COLOR, tags=help_tag)
-    app.canvas.create_text(current_x - 11, nav_y_center, text="?", font=("Arial", 12, "bold"), fill=config.TEXT_COLOR, tags=help_tag)
+    help_img_id = app.canvas.create_image(current_x - 11, nav_y_center, image=app.help_img, tags=help_tag)
     app.canvas.tag_bind(help_tag, "<Button-1>", app.show_help_screen)
     app.canvas.tag_bind(help_tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
     app.canvas.tag_bind(help_tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
 
+    # Status circle + text
     current_x -= 32
     app.canvas.create_oval(current_x - 12, nav_y_center - 6, current_x, nav_y_center + 6, fill="#2ecc71", outline="")
     current_x -= 17
     app.canvas.create_text(current_x, nav_y_center, text="status:", font=app.font_small, fill=config.TEXT_COLOR, anchor="e")
 
+    # Navigation tabs
     start_x = 180
     nav_map = {"home": app.show_home_screen, "Applications": app.show_applications_screen, "Enrollment": app.navigate_to_enrollment}
     first_tab_bbox = None
@@ -44,15 +47,16 @@ def create_header(app):
         app.canvas.tag_bind(tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
         app.canvas.tag_bind(tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
         bbox = app.canvas.bbox(text_id)
-        if first_tab_bbox is None: first_tab_bbox = bbox
+        if first_tab_bbox is None:
+            first_tab_bbox = bbox
         underline_id = app.canvas.create_line(bbox[0], line_y, bbox[2], line_y, fill=config.TEXT_COLOR, width=3, state='hidden')
         app.nav_widgets[key.lower()] = {'text_id': text_id, 'underline_id': underline_id}
         start_x = bbox[2] + 45
-        
-    if first_tab_bbox:
-        line_x0 = first_tab_bbox[0]
-        app.canvas.create_line(line_x0, line_y, line_x1, line_y, fill=config.TEXT_COLOR, width=1)
 
+    if first_tab_bbox and bbox_info:
+        line_x0 = first_tab_bbox[0]
+        line_x1 = bbox_info[2]  # right edge of info icon
+        app.canvas.create_line(line_x0, line_y, line_x1, line_y, fill=config.TEXT_COLOR, width=1)
 
 def update_nav_selection(app, key):
     """Updates the visual selection indicator for the navigation tabs."""
