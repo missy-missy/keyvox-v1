@@ -10,6 +10,9 @@ def show_applications_screen(app):
 
     LIGHT_CARD_BG = "#7C2E50"
 
+    card = ui_helpers.create_main_card(app, width=820, height=420)
+    card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+    card.pack(expand=True, fill="both")   # <- para sakupin yung available space
     # If not logged in
     if not app.currently_logged_in_user:
         card = ui_helpers.create_main_card(app, width=600, height=300)
@@ -103,6 +106,71 @@ def show_applications_screen(app):
         "Edit Email Address",
         app.show_otp_settings_screen
     )
+
+def show_profile_screen(app, event=None):
+    """Displays a read-only User Profile screen with profile icon and details."""
+    ui_helpers.update_nav_selection(app, "profile")
+
+    LIGHT_CARD_BG = "#7C2E50"
+    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_TEXT = "#ffffff"
+
+    user = app.currently_logged_in_user
+    if not user:
+        # Not logged in case
+        card = ui_helpers.create_main_card(app, width=600, height=300)
+        card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+        tk.Label(
+            card,
+            text="Please log in to view your profile.",
+            font=app.font_large,
+            fg=config.TEXT_COLOR,
+            bg=LIGHT_CARD_BG,
+            wraplength=400
+        ).pack(expand=True)
+        return
+
+    # --- Main Profile Card ---
+    card = ui_helpers.create_main_card(app, width=820, height=480)
+    card.config(bg=LIGHT_CARD_BG, relief="flat", bd=0, highlightthickness=0)
+
+    content_frame = tk.Frame(card, bg=LIGHT_CARD_BG)
+    content_frame.pack(expand=True, fill="both", padx=30, pady=20)
+
+    # --- Profile Header with Icon ---
+    header_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
+    header_frame.pack(anchor="center", pady=(10, 25))
+
+    # Use app.profile_img (make sure to load an image in your app init)
+    tk.Label(header_frame, image=app.profile_img, bg=LIGHT_CARD_BG).pack(side="top", pady=10)
+    tk.Label(
+        header_frame, 
+        text=f"{user.get('username', 'User')}", 
+        font=app.font_large, 
+        fg=config.TEXT_COLOR, 
+        bg=LIGHT_CARD_BG
+    ).pack(side="top")
+
+    # --- Info Card ---
+    info_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
+    info_card.pack(fill="x", padx=40, pady=20)
+
+    body_font = font.Font(family=config.FONT_FAMILY, size=12)
+
+    # User Info (read-only)
+    user_info = {
+        "Full Name": user.get("full_name", "N/A"),
+        "Email": user.get("email", "N/A"),
+        "Voice Biometrics": "Enrolled" if user.get("voiceprint_path") else "Not Enrolled",
+        "2FA Enabled": "Yes" if user.get("2fa_enabled") else "No"
+    }
+
+    for i, (label, value) in enumerate(user_info.items()):
+        row = tk.Frame(info_card, bg=INFO_CARD_BG)
+        row.pack(anchor="w", pady=6, padx=20, fill="x")
+
+        tk.Label(row, text=f"{label}:", font=app.font_medium_bold, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG).pack(side="left")
+        tk.Label(row, text=f" {value}", font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, wraplength=600, justify="left").pack(side="left")
 
 
 def show_about_screen(app, event=None):

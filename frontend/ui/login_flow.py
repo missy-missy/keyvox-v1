@@ -202,7 +202,7 @@ def handle_login_voice_record(app, event=None):
         app.show_home_screen()
 
 def show_password_screen(app):
-    """Shows the final password entry screen."""
+    """Shows the final password entry screen with a visibility toggle."""
     app.login_flow_state = 'password_entry'
     LIGHT_CARD_BG = "#7C2E50"
 
@@ -232,23 +232,50 @@ def show_password_screen(app):
     )
     app.error_label.pack(pady=(0, 10))
 
+    # --- [NEW] Frame to hold both the Entry and the Eye Icon ---
+    entry_frame = tk.Frame(content_wrapper, bg="white")
+    entry_frame.pack(pady=10)
+
     # --- Password Entry ---
     app.password_entry = tk.Entry(
-        content_wrapper,
+        entry_frame, # Parent is now the new frame
         font=app.font_large,
         fg="black",
         bg="white",
         show="*",
-        width=25,
+        width=22, # Slightly reduced width to make space for the icon
         relief="flat",
         bd=0,
         justify="center",
         insertbackground="black"
     )
-    app.password_entry.pack(pady=10, ipady=5)
+    app.password_entry.pack(side="left", ipady=5, padx=(10, 0))
     app.password_entry.focus_set()
 
-    # --- Rounded "Confirm Login" Button ---
+    # --- [NEW] Function to toggle password visibility ---
+    def toggle_password_visibility():
+        if app.password_entry.cget('show') == '*':
+            app.password_entry.config(show='')
+            eye_button.config(image=app.eye_closed_img)
+        else:
+            app.password_entry.config(show='*')
+            eye_button.config(image=app.eye_open_img)
+
+    # --- [NEW] The Eye Icon Button ---
+    eye_button = tk.Button(
+        entry_frame, # Parent is also the new frame
+        image=app.eye_open_img,
+        bg="white",
+        relief="flat",
+        bd=0,
+        activebackground="white",
+        command=toggle_password_visibility,
+        cursor="hand2"
+    )
+    eye_button.pack(side="right", padx=(0, 5))
+
+
+    # --- Rounded "Confirm Login" Button (Your original function) ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
         wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
         wrapper.pack(pady=(20, 15))
@@ -257,8 +284,6 @@ def show_password_screen(app):
         canvas.pack()
 
         x1, y1, x2, y2 = 2, 2, width-2, height-2
-
-        # Rounded rectangle
         canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
         canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
         canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
@@ -266,7 +291,6 @@ def show_password_screen(app):
         canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
         canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
 
-        # Centered text
         btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
 
         def on_click(event):
@@ -277,6 +301,7 @@ def show_password_screen(app):
 
         return wrapper
 
+    # The button now correctly calls your original _check_password function
     create_rounded_button(content_wrapper, "Confirm Login", command=app._check_password)
 
 def check_password(app):

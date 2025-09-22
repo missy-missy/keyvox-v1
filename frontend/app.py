@@ -74,6 +74,11 @@ class KeyVoxApp:
             otp_path = os.path.join(script_dir, "assets", "images", "otp_settings.png")
             usb_path = os.path.join(script_dir, "assets", "images", "usb.png")
             bg_path = os.path.join(script_dir, "assets", "images", "bg.png")
+            eye_open_path = os.path.join(script_dir, "assets", "images", "eyes_open.png")
+            eye_closed_path = os.path.join(script_dir, "assets", "images", "eyes_closed.png")
+            dot_filled_path = os.path.join(script_dir, "assets", "images", "dot_filled.png")
+            dot_empty_path = os.path.join(script_dir, "assets", "images", "dot_empty.png")
+            card_bg_path = os.path.join(script_dir, "assets", "images", "card_background.png")
 
             # Load images using the absolute paths
             self.logo_img = ImageTk.PhotoImage(Image.open(logo_path).resize((110, 110), Image.Resampling.LANCZOS))
@@ -88,7 +93,14 @@ class KeyVoxApp:
             self.info_img = ImageTk.PhotoImage(
                 Image.open("assets/icons/info.png").resize((22, 22), Image.Resampling.LANCZOS)
             )
-            card_bg_path = os.path.join(script_dir, "assets", "images", "card_background.png")
+            self.eye_open_img = ImageTk.PhotoImage(Image.open(eye_open_path).resize((20, 20), Image.Resampling.LANCZOS))
+            self.eye_closed_img = ImageTk.PhotoImage(Image.open(eye_closed_path).resize((20, 20), Image.Resampling.LANCZOS))
+            self.dot_filled_img = ImageTk.PhotoImage(Image.open(dot_filled_path).resize((12, 12), Image.Resampling.LANCZOS))
+            self.dot_empty_img = ImageTk.PhotoImage(Image.open(dot_empty_path).resize((12, 12), Image.Resampling.LANCZOS))
+            self.profile_img = ImageTk.PhotoImage(
+            Image.open("assets/images/profile.png").resize((100, 100), Image.Resampling.LANCZOS)
+            )
+            self.card_bg_img = ImageTk.PhotoImage(Image.open(card_bg_path)) # Load the card image
 
         except FileNotFoundError as e: 
             # The error message here will now show the full, correct path it was looking for
@@ -160,11 +172,14 @@ class KeyVoxApp:
         self.root.destroy()
 
     def logout_user(self):
-        """Ask confirmation before logging out and exiting app."""
+        """Ask confirmation, then log out and return to the welcome screen."""
         confirm = messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?")
         if confirm:
-            self.root.quit()   # close mainloop (safe exit)
-            # OR: self.root.destroy()  # force close screen
+            # Reset the currently logged-in user
+            self.currently_logged_in_user = None
+            
+            # Call the method that shows the home/welcome screen
+            self.show_home_screen()
         
 if __name__ == "__main__":
     root = tk.Tk()

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Vox - Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* General Body and Container */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            color: #fff; /* Default text color for the app */
+        }
+
+        .container {
+            height: 100%;
+            background-image: url('assets/images/bg.png'); /* Your background image */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column; /* Stack header and main content vertically */
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 40px;
+            background-color: rgba(0, 0, 0, 0.2); /* Slightly transparent background for the header */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo img {
+            height: 60px; /* Adjust as needed for your logo size */
+            margin-right: 30px;
+        }
+
+        .nav-links {
+            flex-grow: 1; /* Allows nav links to take up available space */
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-item {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 400;
+            padding: 5px 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #f0f0f0;
+        }
+
+        .nav-item.active {
+            font-weight: 600;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #fff; /* White line under active item */
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status {
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #3cb371; /* Green color for active status */
+            border-radius: 50%;
+        }
+
+        .header-icon {
+            height: 20px; /* Adjust icon size */
+            width: 20px;
+            vertical-align: middle;
+        }
+
+        /* Main Content and Welcome Card Styling */
+        .main-content {
+            flex-grow: 1; /* Allows main content to take remaining vertical space */
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            padding-bottom: 50px; /* Adjust for visual balance if needed */
+        }
+
+        .welcome-card {
+            background-color: rgba(124, 46, 80, 0.7); /* Lighter card background with transparency */
+            border-radius: 20px; /* Rounded corners for the card */
+            padding: 30px;
+            text-align: center;
+            width: 380px; /* Fixed width for the card */
+            height: 270px; /* Fixed height for the card */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
+            backdrop-filter: blur(5px); /* Optional: Frosted glass effect */
+            -webkit-backdrop-filter: blur(5px); /* For Safari */
+        }
+
+        .card-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* Spreads content vertically */
+            height: 100%; /* Ensure inner content takes full height for spacing */
+            padding: 10px 0; /* Add some internal padding */
+        }
+
+        .card-icon {
+            width: 60px; /* Adjust size of the key icon */
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .btn-login {
+            background-color: #F5F5F5; /* Light button color */
+            color: #333; /* Dark text for contrast */
+            border: none;
+            border-radius: 20px; /* More rounded button */
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-bottom: 25px;
+        }
+
+        .btn-login:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+
+        .card-info {
+            font-size: 0.9em;
+            color: #e0d9de; /* Slightly muted white for info text */
+            margin-top: auto; /* Pushes to the bottom */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <header class="header">
+            <div class="logo">
+                <img src="assets/images/logo.png" alt="Key Vox Logo">
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item active">Home</a>
+                <a href="#" class="nav-item">Applications</a>
+                <a href="#" class="nav-item">Enrollment</a>
+            </nav>
+            <div class="header-right">
+                <span class="status">status <span class="status-indicator"></span></span>
+                <a href="#" class="icon-link"><img src="assets/icons/help.png" alt="Help" class="header-icon"></a>
+                <a href="#" class="icon-link"><img src="assets/icons/info.png" alt="Info" class="header-icon"></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="welcome-card">
+                <div class="card-inner">
+                    <img src="assets/images/key.png" alt="Key Icon" class="card-icon">
+                    <h1 class="card-title">Welcome to KeyVox</h1>
+                    <button class="btn-login">Begin Login</button>
+                    <p class="card-info">No account? Go to Enrollment Tab.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
