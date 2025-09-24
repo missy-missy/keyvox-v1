@@ -179,7 +179,7 @@ class KeyVoxApp:
             self.currently_logged_in_user = None
             
             # Call the method that shows the home/welcome screen
-            self.show_home_screen()
+            home_screens.show_insert_key_screen(self)
         
 if __name__ == "__main__":
     root = tk.Tk()

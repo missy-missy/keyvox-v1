@@ -1,0 +1,32 @@
+{
+    "juls": {
+        "full_name": "Julian Justin Tan",
+        "email": "juliantan134@gmail.com",
+        "password_hash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+        "voiceprint_path": null
+    },
+    "justin": {
+        "full_name": "Julian Justin Tan",
+        "email": "tanjj938@gmail.com",
+        "password_hash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+        "voiceprint_path": "D:\\0 vscode files\\prototype, keyvox\\Prototypes\\backend\\voiceprints\\justin.pt"
+    },
+    "justt": {
+        "full_name": "Justin Tan",
+        "email": "tohrutan1@gmail.com",
+        "password_hash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+        "voiceprint_path": "D:\\0 vscode files\\prototype, keyvox\\Prototypes\\backend\\voiceprints\\justt.pt"
+    },
+    "julsss": {
+        "full_name": "Julian Justin P. Tan",
+        "email": "tanjj051@gmail.com",
+        "password_hash": "5e290af7a9ec9904720c20cc82e3789a6e85fe16b9b33ea4658c88ddb0116506",
+        "voiceprint_path": "D:\\0 vscode files\\keyvox\\backend\\voiceprints\\julsss.npy"
+    },
+    "justtt": {
+        "full_name": "Julian Justin PP. Tan",
+        "email": "jultan837@gmail.com",
+        "password_hash": "772502b6ebf690ab3a2e0215c8e759d783e68f137003e9bc59df072064f4218b",
+        "voiceprint_path": "D:\\0 vscode files\\keyvox\\backend\\voiceprints\\justtt.npy"
+    }
+}

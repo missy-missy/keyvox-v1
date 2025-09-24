@@ -13,3 +13,5 @@ numpy
 # --- Audio Recording/Playback (from original helpers.py) ---
 sounddevice
 scipy
+
+tensorflow

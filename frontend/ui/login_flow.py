@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 import frontend_config as config
-from . import ui_helpers
+from ui import ui_helpers
+from ui import home_screens # <--- CHANGE #1: ADD THIS IMPORT AT THE TOP
 
 def show_username_entry_screen(app):
     """Shows the screen for the user to enter their username."""
@@ -140,7 +141,7 @@ def show_login_voice_auth_screen(app):
     tk.Label(
         card, text=f"Welcome, {username}!", font=font_title,
         fg="white", bg=LIGHT_CARD_BG
-    ).grid(row=0, column=0, pady=(40, 10), sticky="n")  # ⬅ increased top padding
+    ).grid(row=0, column=0, pady=(40, 10), sticky="n")
 
     # --- Instruction ---
     tk.Label(
@@ -171,7 +172,7 @@ def show_login_voice_auth_screen(app):
     tk.Button(
         bf, text="Cancel", font=font_button,
         bg="#F5F5F5", fg="black", relief="flat",
-        padx=15, pady=6, command=app.show_insert_key_screen
+        padx=15, pady=6, command=lambda: home_screens.show_insert_key_screen(app) # <--- CHANGE #2: FIX THE COMMAND
     ).pack(side="right")
 
 
