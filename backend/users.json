@@ -28,5 +28,35 @@
         "email": "jultan837@gmail.com",
         "password_hash": "772502b6ebf690ab3a2e0215c8e759d783e68f137003e9bc59df072064f4218b",
         "voiceprint_path": "D:\\0 vscode files\\keyvox\\backend\\voiceprints\\justtt.npy"
+    },
+    "ashhyy": {
+        "full_name": "Key Vox",
+        "email": "ash",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": null
+    },
+    "4sh": {
+        "full_name": "Key Vox",
+        "email": "ashjewel@gmail.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\4sh.npy"
+    },
+    "koy": {
+        "full_name": "Kurt ",
+        "email": "Koy@gmail.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\koy.npy"
+    },
+    "koyy": {
+        "full_name": "Kurty",
+        "email": "koooo",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": null
+    },
+    "koyyy": {
+        "full_name": "Kurtyy",
+        "email": "koooo",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\koyyy.npy"
     }
 }
