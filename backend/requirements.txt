@@ -14,4 +14,7 @@ numpy
 sounddevice
 scipy
 
+noisereduce
+SpeechRecognition openai-whisper
+
 tensorflow

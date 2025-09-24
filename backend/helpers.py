@@ -61,3 +61,25 @@ def get_voice_embedding(audio_filepath):
     except Exception as e:
         print(f"Error processing audio file {audio_filepath}: {e}")
         return None
+
+
+def preprocess_single_audio_file(audio_filepath):
+    """
+    Takes a single audio file path and processes it into a single,
+    correctly shaped MFCC array for model input.
+    """
+    try:
+        # This logic is the same as in get_voice_embedding
+        audio, sr = librosa.load(audio_filepath, sr=SAMPLE_RATE, mono=True)
+        audio_trimmed, _ = librosa.effects.trim(audio, top_db=20)
+        mfccs = librosa.feature.mfcc(y=audio_trimmed, sr=SAMPLE_RATE, n_mfcc=N_MFCC)
+        mfccs = mfccs.T
+        if mfccs.shape[0] > MAX_LEN:
+            mfccs = mfccs[:MAX_LEN, :]
+        else:
+            padding = np.zeros((MAX_LEN - mfccs.shape[0], N_MFCC))
+            mfccs = np.vstack((mfccs, padding))
+        return mfccs
+    except Exception as e:
+        print(f"Error in preprocess_single_audio_file: {e}")
+        return None
