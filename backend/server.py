@@ -37,7 +37,7 @@ os.makedirs(VOICEPRINTS_DIR, exist_ok=True)
 os.makedirs(RECORDINGS_DIR, exist_ok=True)
 
 # --- SECURITY THRESHOLD & PASSPHRASES ---
-SECURITY_THRESHOLD = 0.285
+SECURITY_THRESHOLD = 0.20
 ACCEPTED_PASSPHRASES = [
     "my password is my voice",
     "authenticate me through speech",
