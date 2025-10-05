@@ -58,5 +58,47 @@
         "email": "koooo",
         "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
         "voiceprint_path": "voiceprints\\koyyy.npy"
+    },
+    "shley": {
+        "full_name": "Ashley Jewel Heart",
+        "email": "ash@gmail.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\shley.npy"
+    },
+    "user 1": {
+        "full_name": "user 1",
+        "email": "user 1",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\user 1.npy"
+    },
+    "user 2": {
+        "full_name": "user 2",
+        "email": "user 2",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\user 2.npy"
+    },
+    "ashqty": {
+        "full_name": "ashqty",
+        "email": "ash@gmail.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\ashqty.npy"
+    },
+    "ashqty1": {
+        "full_name": "ashqty",
+        "email": "ash@gmail.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\ashqty1.npy"
+    },
+    "ji": {
+        "full_name": "KeyVox",
+        "email": "ji",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\ji.npy"
+    },
+    "user 101": {
+        "full_name": "user 1",
+        "email": "user 1",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\user 101.npy"
     }
 }

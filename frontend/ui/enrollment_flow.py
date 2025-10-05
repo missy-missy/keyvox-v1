@@ -174,40 +174,83 @@ def go_next_phrase(app):
         handle_final_enrollment_upload(app, next_step="otp")
 
 def show_enrollment_step3_otp(app):
+    """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
     LIGHT_CARD_BG = "#7C2E50"
-    for widget in app.content_frame.winfo_children(): widget.destroy()
-    app.enrollment_state = 'step3_otp'
+
+    # Clear old widgets
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
+    import tkinter.font as tkFont
     font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
-    font_subtitle = tkFont.Font(family="Poppins", size=10)
-    font_entry = tkFont.Font(family="Poppins", size=11)
-    font_button = tkFont.Font(family="Poppins", size=10)
-    font_small = tkFont.Font(family="Poppins", size=9)
+    font_text = tkFont.Font(family="Poppins", size=12)
+    font_small = tkFont.Font(family="Poppins", size=10)
+    font_button = tkFont.Font(family="Poppins", size=11)
 
-    card = tk.Frame(app.content_frame, width=500, height=250, bg=LIGHT_CARD_BG); card.pack(pady=40); card.pack_propagate(False)
-    tk.Label(card, text="STEP 3: OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(anchor="w", pady=(20, 5), padx=40)
-    tk.Label(card, text="Enter the 6-digit OTP code sent to your email/phone.", font=font_subtitle, fg="white", bg=LIGHT_CARD_BG, wraplength=500, justify="left").pack(anchor="w", padx=40, pady=(0, 15))
-    app.otp_entry = tk.Entry(card, font=font_entry, width=16, bg="white", fg="black", relief="flat", bd=0, justify="center", insertbackground="black"); app.otp_entry.pack(pady=(0, 10))
-    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG); app.otp_error_label.pack()
-    
-    bf = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG); bf.pack(fill="x", padx=60, pady=(0, 20))
-    tk.Button(bf, text="< Back", font=font_button, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=12, pady=4, command=lambda: show_enrollment_voice_record(app)).pack(side="left")
-    
-    dots_frame = tk.Frame(bf, bg=bf.cget('bg')); dots_frame.pack(side="left", padx=20)
-    tk.Label(dots_frame, image=app.dot_empty_img, bg=bf.cget('bg')).pack(side="left", padx=2)
-    tk.Label(dots_frame, image=app.dot_empty_img, bg=bf.cget('bg')).pack(side="left", padx=2)
-    tk.Label(dots_frame, image=app.dot_filled_img, bg=bf.cget('bg')).pack(side="left", padx=2)
-    
-    tk.Button(bf, text="Verify →", font=font_button, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=20, pady=4, command=lambda: validate_otp(app)).pack(side="right")
+    # --- Card ---
+    card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
+    card.pack(pady=(30, 20))  # 30px top, 20px bottom
+    card.pack_propagate(False)
 
-def validate_otp(app):
-    otp_code = app.otp_entry.get().strip()
-    if not otp_code.isdigit() or len(otp_code) != 6:
-        app.otp_error_label.config(text="Please enter a valid 6-digit OTP."); return
-    if otp_code == "123456":
-        app.otp_error_label.config(text="")
-        show_enrollment_summary(app)
-    else:
-        app.otp_error_label.config(text="Invalid OTP. (Hint: use 123456)")
+    # --- Title ---
+    tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
+
+    # --- Info Text ---
+    email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com'
+    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
+
+    # --- OTP Entry ---
+    app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
+    app.otp_entry.pack(ipady=6, pady=(0, 10))
+
+    # --- Error Label ---
+    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    app.otp_error_label.pack(pady=(0, 10))
+
+    # --- Send Code Label ---
+    tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
+
+    # --- Send Code Button ---
+    def send_code():
+        messagebox.showinfo("Send Code", f"OTP code sent to {email}")
+
+    tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
+
+    # --- Verify Function (bypasses OTP for testing) ---
+    def verify_otp():
+        # Always allow for testing
+        handle_final_enrollment_upload(app)
+
+    # --- Rounded Verify Button ---
+    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
+        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
+        wrapper.pack(pady=0)  # spacing handled by wrapper frame below
+
+        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat", cursor="hand2")
+        canvas.pack()
+
+        x1, y1, x2, y2 = 2, 2, width-2, height-2
+        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
+
+        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
+
+        def on_click(event):
+            if command:
+                command()
+        canvas.tag_bind(btn_text, "<Button-1>", on_click)
+        canvas.bind("<Button-1>", on_click)
+
+        return wrapper
+
+    # --- Place the button below the card with proper bottom margin ---
+    button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
+    button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
+    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp)
 
 def handle_final_enrollment_upload(app, next_step="summary"):
     username = app.new_enrollment_data.get("username")
