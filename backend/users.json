@@ -58,5 +58,11 @@
         "email": "koooo",
         "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
         "voiceprint_path": "voiceprints\\koyyy.npy"
+    },
+    "julsz": {
+        "full_name": "Julian Justin Tan",
+        "email": "jultan837@gmail.com",
+        "password_hash": "1e40f8ddb6f3d89711ee85d4ae81a47f084e2bf6a1329e2811a75a3198db9a9c",
+        "voiceprint_path": "voiceprints\\julsz.npy"
     }
 }

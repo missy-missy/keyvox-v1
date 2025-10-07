@@ -154,35 +154,45 @@ def verify_voice():
         if distance >= SECURITY_THRESHOLD:
             return jsonify({"verified": False, "message": "Voice does not match."})
 
-        print("--- [PRE-CHECK 2] Applying noise reduction to audio ---")
-        audio_data, sample_rate = sf.read(temp_filepath)
-        reduced_noise_audio = nr.reduce_noise(y=audio_data, sr=sample_rate)
-        cleaned_filepath = os.path.join(TEMP_AUDIO_DIR, f"verify_{username}_cleaned.wav")
-        sf.write(cleaned_filepath, reduced_noise_audio, sample_rate)
+        # --- MODIFICATION: PASSPHRASE CHECK REMOVED ---
+        # If the code reaches here, the voice similarity check passed.
+        # We now return a success message immediately.
+        print("--- [VERIFY CHECK 2] Passphrase check skipped. Verification successful. ---")
+        return jsonify({"verified": True})
 
-        print(f"--- [VERIFY CHECK 2] Running Speech Recognition for passphrase check ---")
-        recognizer = sr.Recognizer()
-        with sr.AudioFile(cleaned_filepath) as source:
-            audio_for_transcription = recognizer.record(source)
+        # ======================================================================
+        # === The original passphrase check code below is now commented out ===
+        # ======================================================================
+
+        # print("--- [PRE-CHECK 2] Applying noise reduction to audio ---")
+        # audio_data, sample_rate = sf.read(temp_filepath)
+        # reduced_noise_audio = nr.reduce_noise(y=audio_data, sr=sample_rate)
+        # cleaned_filepath = os.path.join(TEMP_AUDIO_DIR, f"verify_{username}_cleaned.wav")
+        # sf.write(cleaned_filepath, reduced_noise_audio, sample_rate)
+
+        # print(f"--- [VERIFY CHECK 2] Running Speech Recognition for passphrase check ---")
+        # recognizer = sr.Recognizer()
+        # with sr.AudioFile(cleaned_filepath) as source:
+        #     audio_for_transcription = recognizer.record(source)
         
-        # --- THIS IS THE CORRECTED AND COMPLETE TRY/EXCEPT BLOCK ---
-        try:
-            transcribed_text = recognizer.recognize_whisper(audio_for_transcription, language="english", model="base")
-            cleaned_text = ''.join(c for c in transcribed_text.lower() if c.isalpha() or c.isspace()).strip()
-            print(f"Transcribed Text: '{cleaned_text}'")
+        # # --- THIS IS THE CORRECTED AND COMPLETE TRY/EXCEPT BLOCK ---
+        # try:
+        #     transcribed_text = recognizer.recognize_whisper(audio_for_transcription, language="english", model="base")
+        #     cleaned_text = ''.join(c for c in transcribed_text.lower() if c.isalpha() or c.isspace()).strip()
+        #     print(f"Transcribed Text: '{cleaned_text}'")
             
-            if cleaned_text in ACCEPTED_PASSPHRASES:
-                print("Passphrase match found.")
-                return jsonify({"verified": True})
-            else:
-                print("Passphrase does not match.")
-                return jsonify({"verified": False, "message": "Incorrect or unclear passphrase spoken."})
+        #     if cleaned_text in ACCEPTED_PASSPHRASES:
+        #         print("Passphrase match found.")
+        #         return jsonify({"verified": True})
+        #     else:
+        #         print("Passphrase does not match.")
+        #         return jsonify({"verified": False, "message": "Incorrect or unclear passphrase spoken."})
 
-        except sr.UnknownValueError:
-            return jsonify({"verified": False, "message": "Could not understand audio. Please speak clearly."})
-        except sr.RequestError:
-            return jsonify({"verified": False, "message": "Speech recognition service error."})
-        # --- END OF CORRECTED BLOCK ---
+        # except sr.UnknownValueError:
+        #     return jsonify({"verified": False, "message": "Could not understand audio. Please speak clearly."})
+        # except sr.RequestError:
+        #     return jsonify({"verified": False, "message": "Speech recognition service error."})
+        # # --- END OF CORRECTED BLOCK ---
             
     except Exception as e:
         return jsonify({"verified": False, "message": f"An unexpected error occurred: {str(e)}"})
