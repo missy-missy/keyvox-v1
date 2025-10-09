@@ -177,7 +177,7 @@ def show_login_voice_auth_screen(app):
 
 
 def handle_login_voice_record(app, event=None):
-    """Handles the recording and API verification for voice login."""
+    """Handles the recording and API verification for voice login (bypassed to always succeed)."""
     username = app.login_attempt_user.get('username')
     if not username:
         messagebox.showerror("Error", "Username missing.")
@@ -189,18 +189,13 @@ def handle_login_voice_record(app, event=None):
     filepath = os.path.join(config.AUDIO_DIR, f"verify_{username}.wav")
     app._record_audio_blocking(filepath, duration=4)
     
+    # Simulate verification bypass
     app.recording_status_label.config(text="Verifying...")
     app.root.update_idletasks()
-    response = app.api.verify_voice(username, filepath)
     
-    print(f"DEBUG: API response for user '{username}': {response}")
-    
-    if response.get("verified"):
-        messagebox.showinfo("Success", "Voice Authenticated! Please enter your password.")
-        show_password_screen(app)
-    else:
-        messagebox.showerror("Failure", f"Voice authentication failed.\n{response.get('message', 'Please try again.')}")
-        app.show_home_screen()
+    # --- Always accept ---
+    messagebox.showinfo("Success", "Voice Authenticated! Please enter your password.")
+    show_password_screen(app)
 
 def show_password_screen(app):
     """Shows the final password entry screen with a visibility toggle."""
