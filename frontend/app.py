@@ -148,8 +148,9 @@ class KeyVoxApp:
     def _go_next_phrase(self): enrollment_flow.go_next_phrase(self)
     def _finish_enrollment(self): enrollment_flow.finish_enrollment(self)
     def show_change_password_screen(self): application_settings.show_change_password_screen(self)
-    def show_edit_biometrics_screen(self): application_settings.show_edit_biometrics_screen(self)
+    def show_password_screen_voice_entry1(self):application_settings.show_password_screen_voice_entry1(self)
     def show_otp_settings_screen(self): application_settings.show_otp_settings_screen(self)
+    def show_change_OTP_step1_voice_auth_screen(self): application_settings.show_change_OTP_step1_voice_auth_screen(self)
 
     # --- Utility and Handler Methods ---
     # These methods call functions from the separated utility modules.
