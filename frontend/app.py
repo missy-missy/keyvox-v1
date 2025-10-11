@@ -16,6 +16,7 @@ from ui.application_settings import show_change_otp_settings_verification_screen
 
 class KeyVoxApp:
     def __init__(self, root):
+        self.temp_new_email = None # JC Temporary email variable for OTP Change
         self.root = root
         self.api = APIClient()
         
