@@ -11,6 +11,7 @@ from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_scre
 from utils import audio_handler, helpers
 from ui import application_settings
 
+
 class KeyVoxApp:
     def __init__(self, root):
         self.root = root
@@ -34,8 +35,10 @@ class KeyVoxApp:
         self.recording_thread = None
         self.current_phrase_index = 0
         self.enrollment_phrases = [
-            "My password is my voice", "Authenticate me through speech", 
-            "Nine five two seven echo zebra tree", "Today I confirm my identity using my voice", 
+            "My password is my voice", 
+            "Authenticate me through speech", 
+            "Nine five two seven echo zebra tree", 
+            "Today I confirm my identity using my voice", 
             "Unlocking access with my voice"
         ]
         self.token_id = "f3d4-9a7b-23ce-8e6f"
@@ -52,7 +55,7 @@ class KeyVoxApp:
         # --- Build Core UI ---
         self.canvas = tk.Canvas(root, width=self.width, height=self.height, highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
-        ui_helpers.set_background_image(self) # <-- NEW LINE
+        ui_helpers.set_background_image(self)
         ui_helpers.create_header(self)
         
         self.content_frame = tk.Canvas(self.canvas, highlightthickness=0, bg=self.canvas.cget('bg'))
@@ -61,53 +64,54 @@ class KeyVoxApp:
         self.check_server_and_start()
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
+    # =========================================================
+    # IMAGE LOADING
+    # =========================================================
     def _load_images(self):
         """Loads all necessary images for the application."""
         try:
-            # Get the directory where app.py is located
             script_dir = os.path.dirname(os.path.abspath(__file__))
 
-            # Build absolute paths to the images
-            logo_path = os.path.join(script_dir, "assets", "images", "logo.png")
-            key_path = os.path.join(script_dir, "assets", "images", "key.png")
-            mic_path = os.path.join(script_dir, "assets", "images", "mic.png")
-            otp_path = os.path.join(script_dir, "assets", "images", "otp_settings.png")
-            usb_path = os.path.join(script_dir, "assets", "images", "usb.png")
-            bg_path = os.path.join(script_dir, "assets", "images", "bg.png")
-            eye_open_path = os.path.join(script_dir, "assets", "images", "eyes_open.png")
-            eye_closed_path = os.path.join(script_dir, "assets", "images", "eyes_closed.png")
-            dot_filled_path = os.path.join(script_dir, "assets", "images", "dot_filled.png")
-            dot_empty_path = os.path.join(script_dir, "assets", "images", "dot_empty.png")
-            card_bg_path = os.path.join(script_dir, "assets", "images", "card_background.png")
+            # Paths
+            img_dir = os.path.join(script_dir, "assets", "images")
+            icon_dir = os.path.join(script_dir, "assets", "icons")
 
-            # Load images using the absolute paths
-            self.logo_img = ImageTk.PhotoImage(Image.open(logo_path).resize((110, 110), Image.Resampling.LANCZOS))
-            self.key_img = ImageTk.PhotoImage(Image.open(key_path).resize((60, 60), Image.Resampling.LANCZOS))
-            self.mic_img = ImageTk.PhotoImage(Image.open(mic_path).resize((60, 60), Image.Resampling.LANCZOS))
-            self.otp_img = ImageTk.PhotoImage(Image.open(otp_path).resize((60, 60), Image.Resampling.LANCZOS))
-            self.usb_img = ImageTk.PhotoImage(Image.open(usb_path).resize((230, 230), Image.Resampling.LANCZOS))
-            self.bg_img = ImageTk.PhotoImage(Image.open(bg_path).resize((self.width, self.height), Image.Resampling.LANCZOS))
-            self.help_img = ImageTk.PhotoImage(
-                Image.open("assets/icons/help.png").resize((22, 22), Image.Resampling.LANCZOS)
-            )
-            self.info_img = ImageTk.PhotoImage(
-                Image.open("assets/icons/info.png").resize((22, 22), Image.Resampling.LANCZOS)
-            )
-            self.eye_open_img = ImageTk.PhotoImage(Image.open(eye_open_path).resize((20, 20), Image.Resampling.LANCZOS))
-            self.eye_closed_img = ImageTk.PhotoImage(Image.open(eye_closed_path).resize((20, 20), Image.Resampling.LANCZOS))
-            self.dot_filled_img = ImageTk.PhotoImage(Image.open(dot_filled_path).resize((12, 12), Image.Resampling.LANCZOS))
-            self.dot_empty_img = ImageTk.PhotoImage(Image.open(dot_empty_path).resize((12, 12), Image.Resampling.LANCZOS))
-            self.profile_img = ImageTk.PhotoImage(
-            Image.open("assets/images/profile.png").resize((100, 100), Image.Resampling.LANCZOS)
-            )
-            self.card_bg_img = ImageTk.PhotoImage(Image.open(card_bg_path)) # Load the card image
+            # Main images
+            self.logo_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "logo.png")).resize((110, 110)))
+            self.key_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "key.png")).resize((60, 60)))
+            self.mic_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "mic.png")).resize((60, 60)))
+            self.otp_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "otp_settings.png")).resize((60, 60)))
+            self.usb_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb.png")).resize((230, 230)))
+            self.bg_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "bg.png")).resize((self.width, self.height)))
+            self.eye_open_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_open.png")).resize((20, 20)))
+            self.eye_closed_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_closed.png")).resize((20, 20)))
+            self.dot_filled_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "dot_filled.png")).resize((12, 12)))
+            self.dot_empty_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "dot_empty.png")).resize((12, 12)))
+            self.profile_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "profile.png")).resize((100, 100)))
+            self.card_bg_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "card_background.png")))
+            self.lock_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "lock.png")).resize((90, 90)))
 
-        except FileNotFoundError as e: 
-            # The error message here will now show the full, correct path it was looking for
-            messagebox.showerror("Asset Error", f"Image not found: {e.filename}\nPlease ensure 'frontend/assets/images' exists and contains all required images.")
+            # Optional icons (info/help)
+            try:
+                self.help_img = ImageTk.PhotoImage(Image.open(os.path.join(icon_dir, "help.png")).resize((22, 22)))
+                self.info_img = ImageTk.PhotoImage(Image.open(os.path.join(icon_dir, "info.png")).resize((22, 22)))
+            except Exception:
+                # Fallbacks if icons are missing
+                self.help_img = None
+                self.info_img = None
+                print("⚠️ Info/help icons not found, skipping.")
+
+        except FileNotFoundError as e:
+            messagebox.showerror(
+                "Asset Error",
+                f"Image not found: {e.filename}\nPlease ensure 'frontend/assets/images' exists and contains all required images."
+            )
             self.root.destroy()
             exit()
 
+    # =========================================================
+    # FONT INITIALIZATION
+    # =========================================================
     def _initialize_fonts(self):
         """Initializes all font styles used in the application."""
         self.font_nav = font.Font(family=config.FONT_FAMILY, size=12)
@@ -118,6 +122,9 @@ class KeyVoxApp:
         self.font_normal = font.Font(family=config.FONT_FAMILY, size=10)
         self.font_small = font.Font(family=config.FONT_FAMILY, size=9)
 
+    # =========================================================
+    # SERVER CHECK AND STARTUP FLOW
+    # =========================================================
     def check_server_and_start(self):
         """Checks backend server status and starts the UI flow."""
         if not self.api.check_server_status():
@@ -125,16 +132,17 @@ class KeyVoxApp:
             self.root.destroy()
         else:
             print("✅ Backend server connected.")
-            self.show_home_screen()
-    
-    # --- Screen Navigation & UI Flow Methods ---
-    # These methods act as a bridge, calling the functions from the separated UI modules.
-    
+            self.show_welcome_screen()
+
+    # =========================================================
+    # SCREEN NAVIGATION
+    # =========================================================
     def show_home_screen(self, event=None): home_screens.show_home_screen(self)
     def show_applications_screen(self): other_screens.show_applications_screen(self)
     def show_about_screen(self, event=None): other_screens.show_about_screen(self)
     def show_help_screen(self, event=None): other_screens.show_help_screen(self)
-    
+
+    def show_insert_key_screen(self): home_screens.show_insert_key_screen(self)
     def show_username_entry_screen(self): login_flow.show_username_entry_screen(self)
     def _handle_username_submit(self): login_flow.handle_username_submit(self)
     def show_login_voice_auth_screen(self): login_flow.show_login_voice_auth_screen(self)
@@ -148,19 +156,18 @@ class KeyVoxApp:
     def _go_next_phrase(self): enrollment_flow.go_next_phrase(self)
     def _finish_enrollment(self): enrollment_flow.finish_enrollment(self)
     def show_change_password_screen(self): application_settings.show_change_password_screen(self)
-    def show_password_screen_voice_entry1(self):application_settings.show_password_screen_voice_entry1(self)
+    def show_password_screen_voice_entry1(self): application_settings.show_password_screen_voice_entry1(self)
     def show_otp_settings_screen(self): application_settings.show_otp_settings_screen(self)
     def show_change_OTP_step1_voice_auth_screen(self): application_settings.show_change_OTP_step1_voice_auth_screen(self)
 
-    # --- Utility and Handler Methods ---
-    # These methods call functions from the separated utility modules.
-    
+    # =========================================================
+    # UTILITIES
+    # =========================================================
     def toggle_recording(self, event=None): audio_handler.toggle_recording(self, event)
     def _record_audio_blocking(self, filepath, duration=4): audio_handler.record_audio_blocking(self, filepath, duration)
     def _mask_email(self, email): return helpers.mask_email(email)
 
     def _on_closing(self):
-        """Handles the window close event gracefully."""
         self.is_recording = False
         if self.recording_thread and self.recording_thread.is_alive():
             self.root.after(100, self._shutdown)
@@ -168,20 +175,64 @@ class KeyVoxApp:
             self._shutdown()
 
     def _shutdown(self):
-        """Terminates PyAudio and destroys the root window."""
         self.pyaudio_instance.terminate()
         self.root.destroy()
 
+    # =========================================================
+    # LOGOUT
+    # =========================================================
     def logout_user(self):
-        """Ask confirmation, then log out and return to the welcome screen."""
         confirm = messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?")
         if confirm:
-            # Reset the currently logged-in user
             self.currently_logged_in_user = None
-            
-            # Call the method that shows the home/welcome screen
             home_screens.show_insert_key_screen(self)
-        
+
+    # =========================================================
+    # WELCOME SCREEN
+    # =========================================================
+    def show_welcome_screen(self):
+        """Landing page before login screen."""
+        self.login_flow_state = 'not_started'
+        self.currently_logged_in_user = None
+        self.login_attempt_user = None
+
+        LIGHT_CARD_BG = "#AD567C"
+        card = ui_helpers.create_main_card(self, width=480, height=380)
+        card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+        wrapper = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0)
+        wrapper.pack(expand=True)
+
+        tk.Label(wrapper, image=self.lock_img, bg=LIGHT_CARD_BG).pack(pady=(15, 10))
+        tk.Label(wrapper, text="Insert Your Key", font=self.font_large, fg=config.TEXT_COLOR, bg=LIGHT_CARD_BG).pack(pady=(0, 8))
+        tk.Label(wrapper,
+                 font=self.font_normal, fg="#E8E8E8", bg=LIGHT_CARD_BG,
+                 wraplength=350, justify="center").pack(pady=(0, 18))
+
+        # Rounded button
+        def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40,
+                                  bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR):
+            wrap = tk.Frame(parent, bg=LIGHT_CARD_BG)
+            wrap.pack(pady=(0, 18))
+            canvas = tk.Canvas(wrap, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+            canvas.pack()
+            x1, y1, x2, y2 = 2, 2, width-2, height-2
+            canvas.create_oval(x1, y1, x1+radius*2, y1+radius*2, fill=bg, outline=bg)
+            canvas.create_oval(x2-radius*2, y1, x2, y1+radius*2, fill=bg, outline=bg)
+            canvas.create_oval(x1, y2-radius*2, x1+radius*2, y2, fill=bg, outline=bg)
+            canvas.create_oval(x2-radius*2, y2-radius*2, x2, y2, fill=bg, outline=bg)
+            canvas.create_rectangle(x1+radius, y1, x2-radius, y2, fill=bg, outline=bg)
+            canvas.create_rectangle(x1, y1+radius, x2, y2-radius, fill=bg, outline=bg)
+            text_obj = canvas.create_text(width//2, height//2, text=text, fill=fg, font=self.font_normal)
+            canvas.tag_bind(text_obj, "<Button-1>", lambda e: command())
+            return wrap
+
+        create_rounded_button(wrapper, "Get Started", command=self.show_insert_key_screen)
+
+        tk.Label(wrapper, text="© 2025 KeyVox Technologies",
+                 font=self.font_small, fg="#D9D9D9", bg=LIGHT_CARD_BG).pack(pady=(10, 0))
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = KeyVoxApp(root)

@@ -1,7 +1,7 @@
 # --- UI Configuration ---
-GRADIENT_TOP_COLOR = "#5e213f"
+GRADIENT_TOP_COLOR = "#AD567C"
 GRADIENT_BOTTOM_COLOR = "#983a62"
-CARD_BG_COLOR = "#6a2f4b"
+CARD_BG_COLOR = "#AD567C"
 TEXT_COLOR = "#ffffff"
 BUTTON_COLOR = "#c8356e"
 BUTTON_LIGHT_COLOR = "#f0f0f0"
@@ -11,9 +11,9 @@ FONT_FAMILY = "Poppins, sans-serif"
 PLACEHOLDER_COLOR = "#333333"
 
 # --- Enhanced UI Design ---
-BORDER_RADIUS = 12  # px
+BORDER_RADIUS = 15  # px
 CARD_SHADOW = "0 4px 16px rgba(0,0,0,0.15)"
-PADDING = 16  # px
+PADDING = 1006  # px
 MARGIN = 12  # px
 FONT_SIZE = 16  # px
 HEADER_FONT_SIZE = 22  # px

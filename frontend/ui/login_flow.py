@@ -7,7 +7,7 @@ from ui import home_screens # <--- CHANGE #1: ADD THIS IMPORT AT THE TOP
 
 def show_username_entry_screen(app):
     """Shows the screen for the user to enter their username."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Clear old widgets ---
     for widget in app.content_frame.winfo_children():
@@ -106,7 +106,7 @@ def handle_username_submit(app):
 
 def show_login_voice_auth_screen(app):
     """Shows the voice recording UI for login verification."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Clear old widgets ---
     for widget in app.content_frame.winfo_children():
@@ -200,7 +200,7 @@ def handle_login_voice_record(app, event=None):
 def show_password_screen(app):
     """Shows the final password entry screen with a visibility toggle."""
     app.login_flow_state = 'password_entry'
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Card ---
     card = ui_helpers.create_main_card(app, width=420, height=300)

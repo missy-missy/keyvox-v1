@@ -30,12 +30,6 @@ def create_header(app):
     app.canvas.tag_bind(help_tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
     app.canvas.tag_bind(help_tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
 
-    # Status circle + text
-    current_x -= 32
-    app.canvas.create_oval(current_x - 12, nav_y_center - 6, current_x, nav_y_center + 6, fill="#2ecc71", outline="")
-    current_x -= 17
-    app.canvas.create_text(current_x, nav_y_center, text="status:", font=app.font_small, fill=config.TEXT_COLOR, anchor="e")
-
     # Navigation tabs
     start_x = 180
     nav_map = {
@@ -111,7 +105,7 @@ def clear_content_frame(app):
     """Destroys all widgets in the main content frame."""
     for w in app.content_frame.winfo_children():
         w.destroy()
-    app.content_frame.config(bg="#7c2e50", bd=0)
+    app.content_frame.config(bg="#AD567C", bd=0)
 
 
 def create_main_card(app, width=600, height=400):
@@ -125,7 +119,7 @@ def create_main_card(app, width=600, height=400):
         width=width,
         height=height
     )
-    card.pack(pady=20)
+    card.pack(pady=0)
     card.pack_propagate(False)
     return card
 

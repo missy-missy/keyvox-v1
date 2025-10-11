@@ -12,7 +12,7 @@ def show_applications_screen(app):
 
     card = ui_helpers.create_main_card(app, width=820, height=420)
     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
-    card.pack(expand=True, fill="both")   # <- para sakupin yung available space
+    card.pack(expand=True, fill="both")   
     # If not logged in
     if not app.currently_logged_in_user:
         card = ui_helpers.create_main_card(app, width=600, height=300)
@@ -111,7 +111,7 @@ def show_profile_screen(app, event=None):
     """Displays a read-only User Profile screen with profile icon and details."""
     ui_helpers.update_nav_selection(app, "profile")
 
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
     INFO_CARD_BG = "#8D3B63"
     INFO_CARD_TEXT = "#ffffff"
 
@@ -177,7 +177,7 @@ def show_about_screen(app, event=None):
     """Displays the About Us screen with an icon + modern card design."""
     ui_helpers.update_nav_selection(app, None)
 
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
     INFO_CARD_BG = "#8D3B63"
     INFO_CARD_TEXT = "#ffffff"
 
@@ -235,92 +235,86 @@ def show_about_screen(app, event=None):
         ).pack(anchor="w", padx=40, pady=3)
 
 def show_help_screen(app, event=None):
-    """Displays the Help/FAQ screen."""
+    """Displays the Help/FAQ screen with a modern card design similar to the About Us page."""
     ui_helpers.update_nav_selection(app, None)
 
-    # Use your theme color
-    LIGHT_CARD_BG = "#7C2E50"
-    TEXT_COLOR = "white"
+    LIGHT_CARD_BG = "#AD567C"
+    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_TEXT = "#ffffff"
 
+    # --- Main Card ---
     card = ui_helpers.create_main_card(app, width=820, height=480)
-    card.configure(bg=LIGHT_CARD_BG, relief="flat", bd=0, highlightthickness=0)
+    card.config(bg=LIGHT_CARD_BG, relief="flat", bd=0, highlightthickness=0)
 
     content_frame = tk.Frame(card, bg=LIGHT_CARD_BG)
-    content_frame.pack(expand=True, fill="both")
-    content_frame.grid_columnconfigure(0, weight=1)
-    content_frame.grid_columnconfigure(1, weight=1)
+    content_frame.pack(expand=True, pady=20, padx=30, fill="both")
 
-    # Fonts (smaller, Poppins)
-    title_font = font.Font(family="Poppins", size=18, weight="bold")
-    subtitle_font = font.Font(family="Poppins", size=12, weight="bold")
-    body_font = font.Font(family="Poppins", size=10)
+    # --- Title Row with Icon ---
+    title_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
+    title_frame.pack(anchor="w", pady=(0, 20))
 
-    # Title
-    tk.Label(
-        content_frame,
-        text="Need Help?",
-        font=title_font,
-        fg=TEXT_COLOR,
-        bg=LIGHT_CARD_BG
-    ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 20))
+    icon_font = font.Font(family=config.FONT_FAMILY, size=24, weight="bold")
+    title_font = font.Font(family=config.FONT_FAMILY, size=22, weight="bold")
 
-    # Left Column
-    left_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
-    left_frame.grid(row=1, column=0, sticky="nw", padx=(0, 20))
+    tk.Label(title_frame, text="❓", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
+    tk.Label(title_frame, text="Need Help?", font=title_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left")
+
+    # --- Info Card: Setup Instructions ---
+    setup_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
+    setup_card.pack(pady=(0, 20), fill="x")
+
+    subtitle_font = font.Font(family=config.FONT_FAMILY, size=16, weight="bold")
+    body_font = font.Font(family=config.FONT_FAMILY, size=12)
 
     tk.Label(
-        left_frame,
-        text="Setup Instructions",
-        font=subtitle_font,
-        fg=TEXT_COLOR,
-        bg=LIGHT_CARD_BG
-    ).pack(anchor="w", pady=(0, 10))
+        setup_card, text="Setup Instructions",
+        font=subtitle_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG
+    ).pack(anchor="w", padx=20, pady=(20, 10))
 
     setup_steps = [
-        "Connect KeyVox to your computer via USB.",
-        "Open the KeyVox App (pre-installed or downloadable).",
-        "Follow the voice enrollment process.",
-        "Record a short phrase 3–5 times in a quiet environment to create your secure voiceprint.",
-        "Set up authentication protocols: FIDO, OATH, or challenge-response."
+        "1. Connect your KeyVox device to your computer via USB.",
+        "2. Launch the KeyVox App — it can be pre-installed or downloaded from the official source.",
+        "3. Begin the voice enrollment process by following the on-screen instructions.",
+        "4. Record a short voice phrase 3–5 times in a quiet place to build your secure voiceprint.",
+        "5. Configure your preferred authentication protocols (FIDO, OATH, or challenge-response)."
     ]
 
-    for i, step in enumerate(setup_steps, 1):
+    for step in setup_steps:
         tk.Label(
-            left_frame,
-            text=f"{i}. {step}",
-            font=body_font,
-            fg=TEXT_COLOR,
-            bg=LIGHT_CARD_BG,
-            justify="left",
-            wraplength=350
-        ).pack(anchor="w", pady=3)
+            setup_card, text=f"• {step}",
+            font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG,
+            justify="left", wraplength=720
+        ).pack(anchor="w", padx=20, pady=3)
 
-    # Right Column
-    right_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
-    right_frame.grid(row=1, column=1, sticky="nw", padx=(20, 0))
+    # --- Info Card: Security Tips ---
+    tips_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
+    tips_card.pack(pady=(0, 25), fill="x")
 
     tk.Label(
-        right_frame,
-        text="Security Tips",
-        font=subtitle_font,
-        fg=TEXT_COLOR,
-        bg=LIGHT_CARD_BG
-    ).pack(anchor="w", pady=(0, 10))
+        tips_card, text="Security Tips",
+        font=subtitle_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG
+    ).pack(anchor="w", padx=20, pady=(20, 10))
 
-    security_tips = [
-        "Enroll in a quiet environment for better accuracy.",
-        "Update your voice model if your voice changes significantly.",
-        "Never share recordings of your authentication voice."
+    tips = [
+        "• Enroll in a quiet environment to ensure clear and accurate voice capture.",
+        "• Re-enroll your voice if you experience major changes in your voice tone or quality.",
+        "• Avoid sharing your voice recordings or authentication phrases publicly.",
+        "• Keep your KeyVox device secure and avoid using it on untrusted computers.",
     ]
 
-    for i, tip in enumerate(security_tips, 1):
+    for tip in tips:
         tk.Label(
-            right_frame,
-            text=f"{i}. {tip}",
-            font=body_font,
-            fg=TEXT_COLOR,
-            bg=LIGHT_CARD_BG,
-            justify="left",
-            wraplength=350
-        ).pack(anchor="w", pady=3)
+            tips_card, text=tip,
+            font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG,
+            justify="left", wraplength=720
+        ).pack(anchor="w", padx=20, pady=3)
+
+    # --- Footer Note ---
+    footer_font = font.Font(family=config.FONT_FAMILY, size=11, slant="italic")
+    tk.Label(
+        content_frame,
+        text="If you continue experiencing issues, contact KeyVox Support for assistance.",
+        font=footer_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG, justify="left", wraplength=720
+    ).pack(anchor="w", pady=(10, 0), padx=20)
+
 
