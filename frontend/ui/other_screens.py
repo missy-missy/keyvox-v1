@@ -104,7 +104,7 @@ def show_applications_screen(app):
         "OTP Settings",
         ["Account:", masked_email],
         "Edit Email Address",
-        app.show_otp_settings_screen_step2
+        app.show_change_otp_settings_screen
     )
 
 def show_profile_screen(app, event=None):

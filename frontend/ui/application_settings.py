@@ -1,11 +1,14 @@
-# In your ui/application_settings.py file
-
 import tkinter as tk
 from . import ui_helpers
 import frontend_config as config
 import os
 from tkinter import messagebox
 from PIL import Image, ImageTk
+# ✅ JC OTP Integration
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
+from OTP.send_otp import send_otp, verify_otp
+from user_data_manager import update_email
 
 def load_images(app):
     """Load and resize all images used in the UI."""
@@ -361,7 +364,7 @@ def show_change_otp_settings_screen(app):
     tk.Label(card, text="Edit OTP Settings", font=font_title, fg="white", bg=LIGHT_CARD_BG).grid(
         row=0, column=0, columnspan=2, sticky="w", pady=(20, 5), padx=40
     )
-    tk.Label(card, text="Enter your email address and confirm it before verifying with OTP.",
+    tk.Label(card, text="Enter your new email address and confirm it before verifying with OTP.",
              font=font_subtitle, fg="white", bg=LIGHT_CARD_BG).grid(
         row=1, column=0, columnspan=2, sticky="w", pady=(0, 20), padx=40
     )
@@ -369,7 +372,7 @@ def show_change_otp_settings_screen(app):
     # --- Fields ---
     fields = {
         "New Email Address:": "email_address",
-        "Confirm Email Address:": "confirm_email"
+        "Confirm New Email Address:": "confirm_email"
     }
 
     app.entry_widgets = {}
@@ -408,8 +411,26 @@ def show_change_otp_settings_screen(app):
         if email != confirm:
             app.enroll_error_label.config(text="Email addresses do not match.")
             return
+        app.temp_new_email = email # JC Store new email temporarily
         # success → go to OTP verification (dummy)
-        show_change_otp_settings_verification_screen(app)
+        # show_change_otp_settings_verification_screen(app)
+        try:
+            from OTP.send_otp import send_otp
+            success, message = send_otp(email)
+            if success:
+                print(message)
+                messagebox.showinfo("Information", message)
+                show_change_otp_settings_verification_screen(app)
+            else:
+                print(message)
+                messagebox.showerror("Error! Please check logs!", message)
+                app.enroll_error_label.config(text="Error! Please check logs!")
+        except Exception as e:
+            err_msg = f"❌ Error sending OTP: {e}"
+            app.enroll_error_label.config(text=err_msg)
+            messagebox.showerror("Error! Please check logs!", err_msg)
+            app.enroll_error_label.config(text="Error! Please check logs!")
+            print(err_msg)
 
     tk.Button(
         bf, text="Proceed", font=font_button,
@@ -441,7 +462,11 @@ def show_change_otp_settings_verification_screen(app):
     tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
 
     # --- Info Text ---
-    email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com'
+    # email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com' # JC Change comment whole line
+    email = getattr(app, "temp_new_email", None) or (
+        app.currently_logged_in_user.get('email', 'your_email@example.com')
+        if app.currently_logged_in_user else 'your_email@example.com'
+    )
     tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
 
     # --- OTP Entry ---
@@ -456,15 +481,69 @@ def show_change_otp_settings_verification_screen(app):
     tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
 
     # --- Send Code Button ---
+    # def send_code():
+    #     messagebox.showinfo("Send Code", f"OTP code sent to {email}")
+    # --- Send Code Button (real resend logic) ---
     def send_code():
-        messagebox.showinfo("Send Code", f"OTP code sent to {email}")
+        email = getattr(app, "temp_new_email", None)
+        if not email:
+            messagebox.showerror("Error", "No email found. Please go back and enter your email again.")
+            return
+        try:
+            from OTP.send_otp import send_otp
+            success, msg = send_otp(email)
+            if success:
+                messagebox.showinfo("Send Code", msg)
+            else:
+                messagebox.showerror("Send Code Failed", msg)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to resend OTP: {e}")
 
     tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
 
+    		
     # --- Verify Function (bypasses OTP for testing) ---
-    def verify_otp():
+    def verify_otp_newEmail():
         # Always allow for testing
-        show_applications_screen(app)
+        # Always allow for testing
+        # show_applications_screen(app)
+        entered_code = app.otp_entry.get().strip()
+        print("1")
+        try:
+            print("2")
+            from OTP.send_otp import verify_otp as backend_verify_otp
+            print("3")
+            success = backend_verify_otp(entered_code)
+            print("4")
+            if success:
+                print("5")
+                user = app.currently_logged_in_user
+                print("6")
+                old_email = user.get('email', 'unknown@example.com')
+                print("7")
+                new_email = getattr(app, "temp_new_email", 'unknown@example.com')
+                print("8")
+                # Update email
+                update_email(old_email, new_email)
+                print("9")
+                print(f"Email changed from {old_email} to {new_email}")
+                print("10")
+                
+                messagebox.showinfo(
+                    "Success",
+                    f"Email successfully changed and verified via OTP!\n\n"
+                    f"Old Email: {old_email}\n"
+                    f"New Email: {new_email}"
+                )
+                
+                # Update the current user's email after successful OTP verification
+                app.currently_logged_in_user['email'] = new_email
+                
+                show_applications_screen(app)
+            else:
+                app.otp_error_label.config(text="Invalid or expired OTP. Please try again.")
+        except Exception as e:
+            messagebox.showerror("Error", f"OTP verification failed: {e}")
 
     # --- Rounded Verify Button ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
@@ -495,4 +574,4 @@ def show_change_otp_settings_verification_screen(app):
     # --- Place the button below the card with proper bottom margin ---
     button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
-    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp)
+    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp_newEmail)
