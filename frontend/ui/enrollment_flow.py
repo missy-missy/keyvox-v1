@@ -11,7 +11,7 @@ def navigate_to_enrollment(app, event=None):
     
 def show_enrollment_step1(app):
     """Shows the account setup form (name, username, password)."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     for widget in app.content_frame.winfo_children():
         widget.destroy()
@@ -117,7 +117,7 @@ def validate_step1(app):
         app.enroll_error_label.config(text=response.get("message", "Registration failed."))
 
 def show_enrollment_step2(app):
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
     for widget in app.content_frame.winfo_children(): widget.destroy()
     app.enrollment_state = 'step2_voice_intro'
     font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
@@ -140,7 +140,7 @@ def show_enrollment_step2(app):
     tk.Button(bf, text="Start →", font=font_button, bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR, relief="flat", padx=12, pady=4, command=lambda: show_enrollment_voice_record(app)).pack(side="right")
 
 def show_enrollment_voice_record(app):
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
     for widget in app.content_frame.winfo_children(): widget.destroy()
     app.enrollment_state = 'step3_voice_record'
     font_title = tkFont.Font(family="Poppins", size=12, weight="bold")
@@ -175,7 +175,7 @@ def go_next_phrase(app):
 
 def show_enrollment_step3_otp(app):
     """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # Clear old widgets
     for widget in app.content_frame.winfo_children():
@@ -265,7 +265,7 @@ def handle_final_enrollment_upload(app, next_step="summary"):
         messagebox.showerror("Enrollment Failed", response.get("message", "Final enrollment failed."))
 
 def show_enrollment_summary(app):
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
     for widget in app.content_frame.winfo_children(): widget.destroy()
     font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
     font_text = tkFont.Font(family="Poppins", size=11)
