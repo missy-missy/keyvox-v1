@@ -8,7 +8,7 @@ def show_applications_screen(app):
     """Shows the application management screen for a logged-in user with modern card + rounded button style."""
     ui_helpers.update_nav_selection(app, "applications")
 
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     card = ui_helpers.create_main_card(app, width=820, height=420)
     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
@@ -104,7 +104,7 @@ def show_applications_screen(app):
         "OTP Settings",
         ["Account:", masked_email],
         "Edit Email Address",
-        app.show_change_OTP_step1_voice_auth_screen
+        app.show_otp_settings_screen_step2
     )
 
 def show_profile_screen(app, event=None):
@@ -112,7 +112,7 @@ def show_profile_screen(app, event=None):
     ui_helpers.update_nav_selection(app, "profile")
 
     LIGHT_CARD_BG = "#AD567C"
-    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_BG = "#AD567C"
     INFO_CARD_TEXT = "#ffffff"
 
     user = app.currently_logged_in_user
@@ -178,7 +178,7 @@ def show_about_screen(app, event=None):
     ui_helpers.update_nav_selection(app, None)
 
     LIGHT_CARD_BG = "#AD567C"
-    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_BG = "#AD567C"
     INFO_CARD_TEXT = "#ffffff"
 
     card = ui_helpers.create_main_card(app, width=820, height=480)
@@ -194,12 +194,12 @@ def show_about_screen(app, event=None):
     icon_font = font.Font(family=config.FONT_FAMILY, size=24, weight="bold")
     title_font = font.Font(family=config.FONT_FAMILY, size=22, weight="bold")
 
-    tk.Label(title_frame, text="ℹ️", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
+    # tk.Label(title_frame, text="ℹ️", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
     tk.Label(title_frame, text="About Us", font=title_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left")
 
     # --- About Text Card ---
     about_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
-    about_card.pack(pady=(0, 25), fill="x")
+    about_card.pack(pady=(0, 20), fill="x")
 
     body_font = font.Font(family=config.FONT_FAMILY, size=12)
     about_text = (
@@ -213,14 +213,14 @@ def show_about_screen(app, event=None):
         about_card, text=about_text,
         font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG,
         justify="left", wraplength=720
-    ).pack(padx=20, pady=20, anchor="w")
+    ).pack(padx=25, pady=20, anchor="w")
 
     # --- Subtitle + Bullets ---
     subtitle_font = font.Font(family=config.FONT_FAMILY, size=16, weight="bold")
     tk.Label(
         content_frame, text="How Voice Authentication Works",
         font=subtitle_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG
-    ).pack(anchor="w", pady=(0, 15))
+    ).pack(anchor="w", padx=20, pady=(0, 15))
 
     bullets = [
         "Analyze and learn the unique patterns in your voice.",
@@ -239,7 +239,7 @@ def show_help_screen(app, event=None):
     ui_helpers.update_nav_selection(app, None)
 
     LIGHT_CARD_BG = "#AD567C"
-    INFO_CARD_BG = "#8D3B63"
+    INFO_CARD_BG = "#AD567C"
     INFO_CARD_TEXT = "#ffffff"
 
     # --- Main Card ---
@@ -256,7 +256,7 @@ def show_help_screen(app, event=None):
     icon_font = font.Font(family=config.FONT_FAMILY, size=24, weight="bold")
     title_font = font.Font(family=config.FONT_FAMILY, size=22, weight="bold")
 
-    tk.Label(title_frame, text="❓", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
+    # tk.Label(title_frame, text="❓", font=icon_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left", padx=(0, 10))
     tk.Label(title_frame, text="Need Help?", font=title_font, fg=INFO_CARD_TEXT, bg=LIGHT_CARD_BG).pack(side="left")
 
     # --- Info Card: Setup Instructions ---
@@ -281,7 +281,7 @@ def show_help_screen(app, event=None):
 
     for step in setup_steps:
         tk.Label(
-            setup_card, text=f"• {step}",
+            setup_card, text=f"{step}",
             font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG,
             justify="left", wraplength=720
         ).pack(anchor="w", padx=20, pady=3)

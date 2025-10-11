@@ -10,6 +10,8 @@ import frontend_config as config
 from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_screens
 from utils import audio_handler, helpers
 from ui import application_settings
+from ui.login_flow import show_new_password_screen
+from ui.application_settings import show_change_otp_settings_verification_screen
 
 
 class KeyVoxApp:
@@ -160,6 +162,9 @@ class KeyVoxApp:
     def show_otp_settings_screen(self): application_settings.show_otp_settings_screen(self)
     def show_change_OTP_step1_voice_auth_screen(self): application_settings.show_change_OTP_step1_voice_auth_screen(self)
 
+    def show_new_password_screen(self): show_new_password_screen(self)
+    def show_change_otp_settings_verification_screen(self): show_new_password_screen(self)
+
     # =========================================================
     # UTILITIES
     # =========================================================
@@ -182,10 +187,14 @@ class KeyVoxApp:
     # LOGOUT
     # =========================================================
     def logout_user(self):
+        """Logs the user out, clears all session state, and returns to the welcome screen."""
         confirm = messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?")
         if confirm:
             self.currently_logged_in_user = None
-            home_screens.show_insert_key_screen(self)
+            self.login_attempt_user = None
+            self.login_flow_state = 'not_started'
+            # Always go to the initial welcome screen on logout
+            self.show_welcome_screen() 
 
     # =========================================================
     # WELCOME SCREEN
