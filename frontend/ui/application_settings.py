@@ -23,11 +23,11 @@ def load_images(app):
 "--------------- CHANGE PASSWORD ------------------------ "
 def show_change_password_screen(app):
     """
-    Dummy Change Password screen.
-    UI looks real, but it doesn't update the actual password.
-    After 'saving', it proceeds to voice + OTP verification.
+    Simplified Change Password screen:
+    Only asks for Current, New, and Confirm Password.
+    Proceeds directly to OTP verification after saving.
     """
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Clear old widgets ---
     for widget in app.content_frame.winfo_children():
@@ -76,12 +76,7 @@ def show_change_password_screen(app):
 
     app.entry_widgets = {}
 
-    # Ensure you have these loaded as PhotoImage
-    # app.eye_open_img = tk.PhotoImage(file="eye_open.png")
-    # app.eye_closed_img = tk.PhotoImage(file="eye_closed.png")
-
     def make_password_field(parent, label_text, key, row):
-        """Creates a password field with an eye toggle button."""
         tk.Label(parent, text=label_text, font=font_label,
                  fg="white", bg=LIGHT_CARD_BG).grid(row=row, column=0,
                                                     sticky="w", pady=6, padx=(40, 20))
@@ -95,20 +90,21 @@ def show_change_password_screen(app):
         entry.pack(side="left", ipady=4, padx=(5, 0))
         app.entry_widgets[key] = entry
 
-        def toggle_visibility():
-            if entry.cget("show") == "*":
-                entry.config(show="")
-                btn.config(image=app.eye_closed_img)
-            else:
-                entry.config(show="*")
-                btn.config(image=app.eye_open_img)
+        # Eye toggle (optional, requires images)
+        if hasattr(app, "eye_open_img") and hasattr(app, "eye_closed_img"):
+            def toggle_visibility():
+                if entry.cget("show") == "*":
+                    entry.config(show="")
+                    btn.config(image=app.eye_closed_img)
+                else:
+                    entry.config(show="*")
+                    btn.config(image=app.eye_open_img)
 
-        btn = tk.Button(entry_frame, image=app.eye_open_img, bg="white",
-                        relief="flat", bd=0, activebackground="white",
-                        cursor="hand2", command=toggle_visibility)
-        btn.pack(side="right", padx=(0, 5))
+            btn = tk.Button(entry_frame, image=app.eye_open_img, bg="white",
+                            relief="flat", bd=0, activebackground="white",
+                            cursor="hand2", command=toggle_visibility)
+            btn.pack(side="right", padx=(0, 5))
 
-    # Create all password fields
     for i, (label, key) in enumerate(fields.items(), start=2):
         make_password_field(card, label, key, i)
 
@@ -129,11 +125,11 @@ def show_change_password_screen(app):
         command=lambda: app.show_applications_screen()
     ).pack(side="left")
 
-    # Save Changes button (dummy mode → proceed to next steps)
+    # Save Changes button → straight to OTP
     def dummy_save_password():
         data = {key: entry.get() for key, entry in app.entry_widgets.items()}
 
-        # Basic validation only
+        # Basic validation
         if not all(data.values()):
             app.enroll_error_label.config(text="All fields are required.")
             return
@@ -141,11 +137,8 @@ def show_change_password_screen(app):
             app.enroll_error_label.config(text="New passwords do not match.")
             return
 
-        # Pretend success
-        messagebox.showinfo("Success", "Password updated (dummy). Proceeding...")
-
-        # Go to voice auth
-        show_change_password_voice_auth_screen(app)
+        messagebox.showinfo("Success", "Password updated (dummy). Proceeding to OTP...")
+        app.show_applications_screen()
 
     tk.Button(
         bf, text="Save Changes", font=font_button,
@@ -153,191 +146,6 @@ def show_change_password_screen(app):
         command=dummy_save_password
     ).pack(side="right")
 
-def show_change_password_voice_auth_screen(app):
-    """Shows the voice recording UI for change password verification (dummy)."""
-    LIGHT_CARD_BG = "#7C2E50"
-
-    # --- Clear old widgets ---
-    for widget in app.content_frame.winfo_children():
-        widget.destroy()
-
-    app.change_pw_flow_state = 'voice_auth'
-
-    # --- Kunin real username or fallback ---
-    username = "User"
-    if app.currently_logged_in_user:
-        username = app.currently_logged_in_user.get("username") \
-                   or app.currently_logged_in_user.get("full_name") \
-                   or app.currently_logged_in_user.get("email") \
-                   or "User"
-
-    # --- Fonts ---
-    import tkinter.font as tkFont
-    font_title = tkFont.Font(family="Poppins", size=16, weight="bold")
-    font_subtitle = tkFont.Font(family="Poppins", size=12)
-    font_small = tkFont.Font(family="Poppins", size=10)
-    font_button = tkFont.Font(family="Poppins", size=11)
-
-    # --- Centering ---
-    app.content_frame.grid_rowconfigure(0, weight=1)
-    app.content_frame.grid_columnconfigure(0, weight=1)
-
-    # --- Main Card ---
-    card = tk.Frame(app.content_frame, width=500, height=400, bg=LIGHT_CARD_BG)
-    card.grid(row=0, column=0, sticky="nsew")
-    card.grid_propagate(False)
-
-    for r in range(6):
-        card.grid_rowconfigure(r, weight=1)
-    card.grid_columnconfigure(0, weight=1)
-
-    # --- Title ---
-    tk.Label(
-        card, text=f"Voice Authentication for {username}", font=font_title,
-        fg="white", bg=LIGHT_CARD_BG
-    ).grid(row=0, column=0, pady=(40, 10), sticky="n")
-
-    # --- Instruction ---
-    tk.Label(
-        card, text='Please say: "My voice is my password"',
-        font=font_subtitle, fg="#F5C6E0",
-        bg=LIGHT_CARD_BG, wraplength=600, justify="center"
-    ).grid(row=1, column=0, pady=(1, 10), sticky="n")
-
-    # --- Mic Icon ---
-    mic_label = tk.Label(card, image=app.mic_img, bg=LIGHT_CARD_BG, cursor="hand2")
-    mic_label.grid(row=2, column=0, pady=(10, 10))
-    mic_label.bind("<Button-1>", lambda e: handle_change_password_voice_record(app))
-
-    # --- Status Label ---
-    app.recording_status_label = tk.Label(
-        card, text="Click the mic to authenticate",
-        font=font_small, fg="white", bg=LIGHT_CARD_BG
-    )
-    app.recording_status_label.grid(row=3, column=0, pady=(5, 10))
-
-    # --- Spacer ---
-    tk.Label(card, text="", bg=LIGHT_CARD_BG).grid(row=4, column=0)
-
-    # --- Bottom Frame ---
-    bf = tk.Frame(card, bg=LIGHT_CARD_BG)
-    bf.grid(row=5, column=0, sticky="ew", padx=60, pady=(10, 20))
-
-    tk.Button(
-        bf, text="Cancel", font=font_button,
-        bg="#F5F5F5", fg="black", relief="flat",
-        padx=15, pady=6, command=lambda: show_change_password_screen(app)
-    ).pack(side="right")
-
-
-def handle_change_password_voice_record(app, event=None):
-    """Handles dummy recording and directly proceeds to OTP."""
-    username = None
-    if app.currently_logged_in_user:
-        username = app.currently_logged_in_user.get("username")
-
-    app.recording_status_label.config(text="Recording (4s)...")
-    app.root.update_idletasks()
-
-    # Dummy wait lang para realistic
-    import time
-    time.sleep(2)
-
-    app.recording_status_label.config(text="Verifying...")
-    app.root.update_idletasks()
-
-    # DUMMY: Always pass
-    import tkinter.messagebox as messagebox
-    messagebox.showinfo("Success", "Voice Authenticated! Please enter the OTP.")
-    show_change_password_otp(app)   # <-- diretso OTP
-
-
-def show_change_password_otp(app):
-    """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
-    LIGHT_CARD_BG = "#7C2E50"
-
-    # Clear old widgets
-    for widget in app.content_frame.winfo_children():
-        widget.destroy()
-
-    import tkinter.font as tkFont
-    from .other_screens import show_applications_screen
-    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
-    font_text = tkFont.Font(family="Poppins", size=12)
-    font_small = tkFont.Font(family="Poppins", size=10)
-    font_button = tkFont.Font(family="Poppins", size=11)
-
-    # --- Card ---
-    card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
-    card.pack(pady=(30, 20))  # 30px top, 20px bottom
-    card.pack_propagate(False)
-
-    # --- Title ---
-    tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
-
-    # --- Info Text ---
-    email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com'
-    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
-
-    # --- OTP Entry ---
-    app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
-    app.otp_entry.pack(ipady=6, pady=(0, 10))
-
-    # --- Error Label ---
-    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
-    app.otp_error_label.pack(pady=(0, 10))
-
-    # --- Send Code Label ---
-    tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
-
-    # --- Send Code Button ---
-    def send_code():
-        messagebox.showinfo("Send Code", f"OTP code sent to {email}")
-
-    tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
-
-    # --- Verify Function (bypasses OTP for testing) ---
-    # --- Verify Function (check OTP properly) ---
-    def verify_otp():
-        entered_code = app.otp_entry.get().strip()
-
-        if entered_code == "123456":  # dummy success code
-            messagebox.showinfo("Success", "Password change verified via OTP!")
-            show_applications_screen(app)   # balik sa Applications
-        else:
-            app.otp_error_label.config(text="Invalid OTP. Try again.")
-
-    # --- Rounded Verify Button ---
-    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
-        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
-        wrapper.pack(pady=0)
-
-        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG,
-                           bd=0, highlightthickness=0, relief="flat", cursor="hand2")
-        canvas.pack()
-
-        x1, y1, x2, y2 = 2, 2, width-2, height-2
-        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
-        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
-        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
-        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
-        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
-        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
-
-        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
-
-        def on_click(event):
-            if command:
-                command()
-        canvas.tag_bind(btn_text, "<Button-1>", on_click)
-        canvas.bind("<Button-1>", on_click)
-
-        return wrapper
-
-    # --- Place the button with proper bottom margin ---
-    button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
-    button_wrapper.pack(pady=(0, 30))
-    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp)
 
 "--------------- CHANGE VOICE BIOMETRICS ------------------------ "
 # -------------------------------
@@ -352,7 +160,7 @@ def check_password(app):
             "email": "dummy@example.com"
         }
     # Proceed to OTP verification screen
-    show_otp_verification_screen(app)
+    show_voice_enrollment_screen(app)
 
 def show_password_screen_voice_entry1(app):
     """
@@ -360,7 +168,7 @@ def show_password_screen_voice_entry1(app):
     and always bypasses password validation.
     """
     app.login_flow_state = 'password_entry'
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Card ---
     card = ui_helpers.create_main_card(app, width=420, height=300)
@@ -461,94 +269,13 @@ def show_password_screen_voice_entry1(app):
 
     create_rounded_button(content_wrapper, "Confirm Login", command=validate_and_submit)
 
-# -------------------------------
-# Step 2: OTP Verification (Frontend only)
-# -------------------------------
-def show_otp_verification_screen(app):
-    """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
-    LIGHT_CARD_BG = "#7C2E50"
-
-    # Clear old widgets
-    for widget in app.content_frame.winfo_children():
-        widget.destroy()
-
-    import tkinter.font as tkFont
-    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
-    font_text = tkFont.Font(family="Poppins", size=12)
-    font_small = tkFont.Font(family="Poppins", size=10)
-    font_button = tkFont.Font(family="Poppins", size=11)
-
-    # --- Card ---
-    card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
-    card.pack(pady=(30, 20))  # 30px top, 20px bottom
-    card.pack_propagate(False)
-
-    # --- Title ---
-    tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
-
-    # --- Info Text ---
-    email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com'
-    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
-
-    # --- OTP Entry ---
-    app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
-    app.otp_entry.pack(ipady=6, pady=(0, 10))
-
-    # --- Error Label ---
-    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
-    app.otp_error_label.pack(pady=(0, 10))
-
-    # --- Send Code Label ---
-    tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
-
-    # --- Send Code Button ---
-    def send_code():
-        messagebox.showinfo("Send Code", f"OTP code sent to {email}")
-
-    tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
-
-    # --- Verify Function (bypasses OTP for testing) ---
-    def verify_otp():
-        # Always allow for testing
-        show_voice_enrollment_screen(app)
-
-    # --- Rounded Verify Button ---
-    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
-        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
-        wrapper.pack(pady=0)  # spacing handled by wrapper frame below
-
-        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat", cursor="hand2")
-        canvas.pack()
-
-        x1, y1, x2, y2 = 2, 2, width-2, height-2
-        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
-        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
-        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
-        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
-        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
-        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
-
-        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
-
-        def on_click(event):
-            if command:
-                command()
-        canvas.tag_bind(btn_text, "<Button-1>", on_click)
-        canvas.bind("<Button-1>", on_click)
-
-        return wrapper
-
-    # --- Place the button below the card with proper bottom margin ---
-    button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
-    button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
-    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp)
 
 # -------------------------------
-# Step 3: Voice Enrollment (Frontend only)
+# Step 2: Voice Enrollment (Frontend only)
 # -------------------------------
 def show_voice_enrollment_screen(app):
     """Voice enrollment screen (frontend only)."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # Clear old widgets
     for widget in app.content_frame.winfo_children():
@@ -606,109 +333,10 @@ def show_voice_enrollment_screen(app):
 
 
 "--------------- CHANGE OTP Email Address ------------------------ "
-# ------ STEP 1: VOICE AUTHENTICATION (dummy) ------
-def show_change_OTP_step1_voice_auth_screen(app):
-    """Shows the voice recording UI for change password verification (dummy)."""
-    LIGHT_CARD_BG = "#7C2E50"
-
-    # --- Clear old widgets ---
-    for widget in app.content_frame.winfo_children():
-        widget.destroy()
-
-    app.change_pw_flow_state = 'voice_auth'
-
-    # --- Kunin real username or fallback ---
-    username = "User"
-    if app.currently_logged_in_user:
-        username = app.currently_logged_in_user.get("username") \
-                   or app.currently_logged_in_user.get("full_name") \
-                   or app.currently_logged_in_user.get("email") \
-                   or "User"
-
-    # --- Fonts ---
-    import tkinter.font as tkFont
-    font_title = tkFont.Font(family="Poppins", size=16, weight="bold")
-    font_subtitle = tkFont.Font(family="Poppins", size=12)
-    font_small = tkFont.Font(family="Poppins", size=10)
-    font_button = tkFont.Font(family="Poppins", size=11)
-
-    # --- Centering ---
-    app.content_frame.grid_rowconfigure(0, weight=1)
-    app.content_frame.grid_columnconfigure(0, weight=1)
-
-    # --- Main Card ---
-    card = tk.Frame(app.content_frame, width=500, height=400, bg=LIGHT_CARD_BG)
-    card.grid(row=0, column=0, sticky="nsew")
-    card.grid_propagate(False)
-
-    for r in range(6):
-        card.grid_rowconfigure(r, weight=1)
-    card.grid_columnconfigure(0, weight=1)
-
-    # --- Title ---
-    tk.Label(
-        card, text=f"Voice Authentication for {username}", font=font_title,
-        fg="white", bg=LIGHT_CARD_BG
-    ).grid(row=0, column=0, pady=(40, 10), sticky="n")
-
-    # --- Instruction ---
-    tk.Label(
-        card, text='Please say: "My voice is my password"',
-        font=font_subtitle, fg="#F5C6E0",
-        bg=LIGHT_CARD_BG, wraplength=600, justify="center"
-    ).grid(row=1, column=0, pady=(1, 10), sticky="n")
-
-    # --- Mic Icon ---
-    mic_label = tk.Label(card, image=app.mic_img, bg=LIGHT_CARD_BG, cursor="hand2")
-    mic_label.grid(row=2, column=0, pady=(10, 10))
-    mic_label.bind("<Button-1>", lambda e: handle_change_password_voice_record(app))
-
-    # --- Status Label ---
-    app.recording_status_label = tk.Label(
-        card, text="Click the mic to authenticate",
-        font=font_small, fg="white", bg=LIGHT_CARD_BG
-    )
-    app.recording_status_label.grid(row=3, column=0, pady=(5, 10))
-
-    # --- Spacer ---
-    tk.Label(card, text="", bg=LIGHT_CARD_BG).grid(row=4, column=0)
-
-    # --- Bottom Frame ---
-    bf = tk.Frame(card, bg=LIGHT_CARD_BG)
-    bf.grid(row=5, column=0, sticky="ew", padx=60, pady=(10, 20))
-
-    tk.Button(
-        bf, text="Cancel", font=font_button,
-        bg="#F5F5F5", fg="black", relief="flat",
-        padx=15, pady=6, command=lambda: show_change_password_screen(app)
-    ).pack(side="right")
-
-
-def handle_change_password_voice_record(app, event=None):
-    """Handles dummy recording and directly proceeds to OTP."""
-    username = None
-    if app.currently_logged_in_user:
-        username = app.currently_logged_in_user.get("username")
-
-    app.recording_status_label.config(text="Recording (4s)...")
-    app.root.update_idletasks()
-
-    # Dummy wait lang para realistic
-    import time
-    time.sleep(2)
-
-    app.recording_status_label.config(text="Verifying...")
-    app.root.update_idletasks()
-
-    # DUMMY: Always pass
-    import tkinter.messagebox as messagebox
-    messagebox.showinfo("Success", "Voice Authenticated! Please enter the OTP.")
-    show_otp_settings_screen_step2(app)   # <-- diretso OTP
-
-# ------ STEP 2: OTP VERIFICATION (reuse the same as above) ------
-def show_otp_settings_screen_step2(app):
+# ------ dating show_otp_settings_screen_step 2 and new name lang siya ------
+def show_change_otp_settings_screen(app):
     """Displays the OTP settings screen with confirm email + proceed to OTP verification."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # Clear old widgets
     for widget in app.content_frame.winfo_children():
@@ -740,7 +368,7 @@ def show_otp_settings_screen_step2(app):
 
     # --- Fields ---
     fields = {
-        "Email Address:": "email_address",
+        "New Email Address:": "email_address",
         "Confirm Email Address:": "confirm_email"
     }
 
@@ -781,7 +409,7 @@ def show_otp_settings_screen_step2(app):
             app.enroll_error_label.config(text="Email addresses do not match.")
             return
         # success → go to OTP verification (dummy)
-        show_otp_verification_screen_step2(app)
+        show_change_otp_settings_verification_screen(app)
 
     tk.Button(
         bf, text="Proceed", font=font_button,
@@ -789,9 +417,9 @@ def show_otp_settings_screen_step2(app):
         command=proceed_to_otp
     ).pack(side="right")
 
-def show_otp_verification_screen_step2(app):
+def show_change_otp_settings_verification_screen(app):
     """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # Clear old widgets
     for widget in app.content_frame.winfo_children():

@@ -4,44 +4,39 @@ from . import ui_helpers
 from PIL import Image, ImageTk
 
 def show_home_screen(app, event=None):
-    """Acts as a router for the home screen based on login or enrollment state."""
+    """Acts as a router for the home screen based on login state."""
     ui_helpers.update_nav_selection(app, "home")
 
     if app.currently_logged_in_user:
+        # If a user is logged in, show their main screen
         show_logged_in_screen(app)
-        return
-
-    if app.just_enrolled:
-        app.just_enrolled = False
-        app.login_attempt_user = {"username": app.just_enrolled_username}
-        app.show_login_voice_auth_screen()
-        return
-        
-    show_insert_key_screen(app)
+    else:
+        # If no user is logged in, show the initial screen to start the process
+        show_insert_key_screen(app)
 
 def show_insert_key_screen(app):
     """A simple, modern welcome screen with a lighter card and no excessive space."""
-    app.login_flow_state = 'not_started'
-    app.currently_logged_in_user = None
-    app.login_attempt_user = None
+    # app.login_flow_state = 'not_started'
+    # app.currently_logged_in_user = None
+    # app.login_attempt_user = None
 
-    LIGHT_CARD_BG = "#7C2E50" 
+    LIGHT_CARD_BG = "#AD567C" 
 
-    card = ui_helpers.create_main_card(app, width=420, height=300)
+    card = ui_helpers.create_main_card(app, width=450, height=350)
     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
 
-    content_wrapper = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+    content_wrapper = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=-0)
     content_wrapper.pack(expand=True)
 
     tk.Label(
         content_wrapper,
         image=app.key_img,
         bg=LIGHT_CARD_BG
-    ).pack(pady=(18, 10))
+    ).pack(pady=(8, 10))
 
     tk.Label(
         content_wrapper,
-        text="Welcome to Key Vox",
+        text="Welcome to KeyVox",
         font=app.font_large,
         fg=config.TEXT_COLOR,
         bg=LIGHT_CARD_BG
@@ -84,13 +79,13 @@ def show_insert_key_screen(app):
         content_wrapper,
         text="No account? Go to the Enrollment tab.",
         font=app.font_normal,
-        fg="#a07a8c",  # Lighter info text
+        fg="#D9D9D9",  # Lighter info text
         bg=LIGHT_CARD_BG
     ).pack(pady=(0, 0))
 
 def show_logged_in_screen(app):
     """Displays the screen for a successfully logged-in user."""
-    LIGHT_CARD_BG = "#7C2E50"
+    LIGHT_CARD_BG = "#AD567C"
 
     # --- Card ---
     card = ui_helpers.create_main_card(app, width=420, height=420)
@@ -167,8 +162,7 @@ def show_logged_in_screen(app):
 
         return wrapper
 
-    create_rounded_button(content_wrapper, "Manage Applications", command=app.show_applications_screen)
-    create_rounded_button(content_wrapper, "Log Out", command=app.logout_user, bg="#e4321f", fg="white")
+    create_rounded_button(content_wrapper, "Log Out", command=app.logout_user, bg="#950D58", fg="white")
 
 def logout(app):
     """Logs the user out and returns to the initial welcome screen."""

@@ -100,5 +100,17 @@
         "email": "user 1",
         "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
         "voiceprint_path": "voiceprints\\user 101.npy"
+    },
+    "nix": {
+        "full_name": "nix",
+        "email": "nix@gmail.com",
+        "password_hash": "e8aea23c7d84eec0c1611cc59891d3eab9c5d3a0cf374f9270a0951fd59eafb1",
+        "voiceprint_path": "voiceprints\\nix.npy"
+    },
+    "katy": {
+        "full_name": "Katy Perry",
+        "email": "ashjewelh@gmai.com",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\katy.npy"
     }
 }
