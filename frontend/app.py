@@ -11,7 +11,7 @@ from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_scre
 from utils import audio_handler, helpers
 from ui import application_settings
 from ui.login_flow import show_new_password_screen
-from ui.application_settings import show_change_otp_settings_verification_screen
+from ui.application_settings import show_change_otp_settings_screen
 
 
 class KeyVoxApp:
@@ -164,7 +164,7 @@ class KeyVoxApp:
     def show_change_OTP_step1_voice_auth_screen(self): application_settings.show_change_OTP_step1_voice_auth_screen(self)
 
     def show_new_password_screen(self): show_new_password_screen(self)
-    def show_change_otp_settings_verification_screen(self): show_new_password_screen(self)
+    def show_change_otp_settings_screen(self): show_change_otp_settings_screen(self)
 
     # =========================================================
     # UTILITIES
