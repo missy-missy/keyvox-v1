@@ -1,11 +1,9 @@
 import tkinter as tk
 import frontend_config as config
 
-
 def set_background_image(app):
     """Sets the background image on the main canvas."""
     app.canvas.create_image(0, 0, anchor="nw", image=app.bg_img)
-
 
 def create_header(app):
     """Creates the top header with logo, navigation, and status icons."""
@@ -30,20 +28,26 @@ def create_header(app):
     app.canvas.tag_bind(help_tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
     app.canvas.tag_bind(help_tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
 
-    # Navigation tabs
+    # Dynamic Navigation Tabs
     start_x = 180
+    is_enrolled = getattr(app, "user_data", {}).get("enrolled", False)
+
     nav_map = {
         "home": app.show_home_screen,
         "applications": app.show_applications_screen,
-        "enrollment": app.navigate_to_enrollment
+        "enrollment": app.navigate_to_enrollment,
     }
+
+    #if is_enrolled:
+    #    nav_map["profile"] = app.show_profile_screen
+    #else:
+    #    nav_map["enrollment"] = app.navigate_to_enrollment
 
     app.nav_widgets = {}
     first_tab_bbox = None
     for key, command in nav_map.items():
         text, tag = key.capitalize(), f"nav_{key}"
 
-        # Create text label
         text_id = app.canvas.create_text(
             start_x, nav_y_center,
             text=text,
@@ -54,7 +58,6 @@ def create_header(app):
         )
         bbox = app.canvas.bbox(text_id)
 
-        # Draw hidden rounded background (will be shown on active)
         pad_x, pad_y = 14, 10
         rect_id = app.canvas.create_round_rectangle(
             bbox[0] - pad_x, bbox[1] - pad_y,
@@ -64,10 +67,8 @@ def create_header(app):
             outline="",
             state="hidden"
         )
-        # Make sure rect is behind the text
         app.canvas.tag_lower(rect_id, text_id)
 
-        # Bind actions
         app.canvas.tag_bind(tag, "<Button-1>", lambda e, cmd=command: cmd())
         app.canvas.tag_bind(tag, "<Enter>", lambda e: app.canvas.config(cursor="hand2"))
         app.canvas.tag_bind(tag, "<Leave>", lambda e: app.canvas.config(cursor=""))
@@ -76,13 +77,12 @@ def create_header(app):
 
         if first_tab_bbox is None:
             first_tab_bbox = bbox
-        start_x = bbox[2] + 70  # spacing
+        start_x = bbox[2] + 70
 
     if first_tab_bbox and bbox_info:
         line_x0 = first_tab_bbox[0]
         line_x1 = bbox_info[2]
         app.canvas.create_line(line_x0, line_y, line_x1, line_y, fill=config.TEXT_COLOR, width=1)
-
 
 def update_nav_selection(app, key):
     """Updates the visual selection indicator for the navigation tabs."""
@@ -91,7 +91,6 @@ def update_nav_selection(app, key):
     key = key.lower()
 
     for k, w in app.nav_widgets.items():
-        # Reset to inactive
         app.canvas.itemconfig(w["text_id"], font=app.font_nav, fill=config.TEXT_COLOR)
         app.canvas.itemconfig(w["rect_id"], state="hidden")
 
@@ -100,13 +99,11 @@ def update_nav_selection(app, key):
         app.canvas.itemconfig(w["text_id"], font=app.font_nav_active, fill="#7C2E50")
         app.canvas.itemconfig(w["rect_id"], state="normal")
 
-
 def clear_content_frame(app):
     """Destroys all widgets in the main content frame."""
     for w in app.content_frame.winfo_children():
         w.destroy()
     app.content_frame.config(bg="#AD567C", bd=0)
-
 
 def create_main_card(app, width=600, height=400):
     """Clears the content frame and creates a new main card to hold content."""
@@ -122,7 +119,6 @@ def create_main_card(app, width=600, height=400):
     card.pack(pady=0)
     card.pack_propagate(False)
     return card
-
 
 def create_rounded_button(parent, text, command, app=None, bg="#F5F5F5", fg="#000000"):
     """Reusable rounded-style button."""
@@ -142,11 +138,8 @@ def create_rounded_button(parent, text, command, app=None, bg="#F5F5F5", fg="#00
     )
     btn.config(bd=0, highlightthickness=0)
     btn.pack(pady=5)
-
     return btn
 
-
-# --- Helper: Rounded rectangle for Canvas ---
 def _create_round_rectangle(self, x1, y1, x2, y2, radius=25, **kwargs):
     points = [
         x1 + radius, y1,
@@ -164,5 +157,4 @@ def _create_round_rectangle(self, x1, y1, x2, y2, radius=25, **kwargs):
     ]
     return self.create_polygon(points, smooth=True, **kwargs)
 
-# Attach method to tk.Canvas
 tk.Canvas.create_round_rectangle = _create_round_rectangle

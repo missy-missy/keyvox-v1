@@ -42,8 +42,10 @@ def show_enrollment_step1(app):
                                                                    padx=40)
 
     fields = {
-        "Full Name:": "full_name", "Username:": "username",
-        "Email:": "email", "Password:": "password",
+        "Full Name:": "full_name",
+        "Username:": "username",
+        "Email Address:": "email",
+        "Password:": "password",
         "Confirm Password:": "confirm_password"
     }
     app.entry_widgets = {}
@@ -173,6 +175,52 @@ def go_next_phrase(app):
     else:
         handle_final_enrollment_upload(app, next_step="otp")
 
+def show_enrollment_step3_email(app):
+    """Asks user for their email before sending OTP."""
+    import tkinter as tk
+    from tkinter import messagebox
+    import tkinter.font as tkFont
+
+    LIGHT_CARD_BG = "#AD567C"
+
+    # Clear old widgets
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
+    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_text = tkFont.Font(family="Poppins", size=12)
+    font_small = tkFont.Font(family="Poppins", size=10)
+
+    # --- Card ---
+    card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
+    card.pack(pady=(30, 20))
+    card.pack_propagate(False)
+
+    tk.Label(card, text="Enter Your Email", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
+
+    tk.Label(card, text="We'll send an OTP code to this email for verification.", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
+
+    # --- Email Entry ---
+    app.email_entry = tk.Entry(card, font=font_text, width=30, justify="center")
+    app.email_entry.pack(ipady=6, pady=(0, 10))
+
+    app.email_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    app.email_error_label.pack(pady=(0, 10))
+
+    # --- Continue Button ---
+    def handle_continue():
+        email = app.email_entry.get().strip()
+        if "@" not in email or "." not in email:
+            app.email_error_label.config(text="Please enter a valid email address.")
+            return
+        else:
+            app.email_error_label.config(text="")
+            app.user_email_for_otp = email  # Save email to app
+            show_enrollment_step3_otp(app)  # Move to OTP screen
+
+    tk.Button(card, text="Continue", font=font_small, bg="#F5F5F5", command=handle_continue).pack(pady=(10, 10))
+
+
 def show_enrollment_step3_otp(app):
     """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
     LIGHT_CARD_BG = "#AD567C"
@@ -259,7 +307,7 @@ def handle_final_enrollment_upload(app, next_step="summary"):
         messagebox.showerror("Error", "Primary enrollment audio not found. Please record phrase 1 again."); return
     response = app.api.enroll_voice(username, filepath)
     if response.get("status") == "success":
-        if next_step == "otp": show_enrollment_step3_otp(app)
+        if next_step == "otp": show_enrollment_step3_email(app)
         else: show_enrollment_summary(app)
     else:
         messagebox.showerror("Enrollment Failed", response.get("message", "Final enrollment failed."))
