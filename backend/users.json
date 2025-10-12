@@ -61,7 +61,7 @@
     },
     "shley": {
         "full_name": "Ashley Jewel Heart",
-        "email": "ash@gmail.com",
+        "email": "charlottemissy435@gmail.com",
         "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
         "voiceprint_path": "voiceprints\\shley.npy"
     },
@@ -112,5 +112,11 @@
         "email": "ashjewelh@gmai.com",
         "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
         "voiceprint_path": "voiceprints\\katy.npy"
+    },
+    "user102": {
+        "full_name": "aaaa",
+        "email": "asas",
+        "password_hash": "b26a45e006b549e49e0a1afbaec961667af1e293fb409c2fb320d8b483d01f95",
+        "voiceprint_path": "voiceprints\\user102.npy"
     }
 }

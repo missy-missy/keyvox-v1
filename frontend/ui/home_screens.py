@@ -103,6 +103,7 @@ def show_logged_in_screen(app):
         bg=LIGHT_CARD_BG
     ).pack(pady=(10, 15))
 
+
     # --- Resize USB Logo ---
     try:
         usb_img_resized = Image.open("assets/images/usb.png").resize((100, 100), Image.Resampling.LANCZOS)

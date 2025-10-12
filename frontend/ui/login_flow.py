@@ -34,7 +34,7 @@ def show_username_entry_screen(app):
     tk.Label(
         content_wrapper, text="Login", font=font_title,
         fg="white", bg=LIGHT_CARD_BG
-    ).pack(pady=(20, 5))
+    ).pack(pady=(15, 5))
 
     tk.Label(
         content_wrapper, text="Enter your username to continue",
@@ -59,7 +59,7 @@ def show_username_entry_screen(app):
     # --- Continue Button (rounded, centered) ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
         wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
-        wrapper.pack(pady=(20, 10))
+        wrapper.pack(pady=(0, 10))
 
         canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat")
         canvas.pack()
@@ -304,7 +304,7 @@ def show_password_screen(app):
 
     # --- Forgot Password Link ---
     def handle_forgot_password():
-        show_otp_verification_screen_forgot_password(app)  # go to OTP verification
+        show_email_verification_screen_forgot_password(app)  # go to OTP verification
 
     forgot_label = tk.Label(
         content_wrapper,
@@ -326,17 +326,19 @@ def show_password_screen(app):
     forgot_label.bind("<Leave>", on_leave)
     forgot_label.bind("<Button-1>", lambda e: handle_forgot_password())
 
+def show_email_verification_screen_forgot_password(app):
+    """Screen for user to input their email before OTP verification."""
+    import tkinter as tk
+    from tkinter import messagebox
+    import tkinter.font as tkFont
 
-def show_otp_verification_screen_forgot_password(app):
-    """OTP verification screen (dummy, unchanged)."""
     LIGHT_CARD_BG = "#AD567C"
 
-    # Clear old widgets
+    # --- Clear old widgets ---
     for widget in app.content_frame.winfo_children():
         widget.destroy()
 
-    import tkinter.font as tkFont
-    from tkinter import messagebox
+    # --- Fonts ---
     font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
     font_small = tkFont.Font(family="Poppins", size=10)
     font_text = tkFont.Font(family="Poppins", size=12)
@@ -344,40 +346,47 @@ def show_otp_verification_screen_forgot_password(app):
 
     # --- Card ---
     card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
-    card.pack(pady=(30, 20))
+    card.pack(pady=(40, 20))
     card.pack_propagate(False)
 
     # --- Title ---
-    tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
+    tk.Label(card, text="Forgot Password", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
+    tk.Label(card, text="Enter your registered email to receive a verification code.", 
+             font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
 
-    # --- Info Text ---
-    email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com'
-    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
-
-    # --- OTP Entry ---
-    app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
-    app.otp_entry.pack(ipady=6, pady=(0, 10))
+    # --- Email Entry ---
+    email_entry = tk.Entry(card, font=font_text, width=30, justify="center")
+    email_entry.pack(ipady=6, pady=(0, 10))
 
     # --- Error Label ---
-    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
-    app.otp_error_label.pack(pady=(0, 10))
+    error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    error_label.pack(pady=(0, 10))
 
-    # --- Send Code ---
-    tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
-    def send_code():
-        messagebox.showinfo("Send Code", f"OTP code sent to {email}")
-    tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
+    # --- Continue Button ---
+    def continue_to_otp():
+        user_input_email = email_entry.get().strip()
+        if not user_input_email:
+            error_label.config(text="Please enter your email.")
+            return
 
-    # --- Verify OTP ---
-    def verify_otp():
-        entered_code = app.otp_entry.get().strip()
-        if entered_code == "123456":  # dummy
-            messagebox.showinfo("Success", "Password change verified via OTP!")
-            app.show_new_password_screen()
-        else:
-            app.otp_error_label.config(text="Invalid OTP. Try again.")
+        # Simulate checking email in database
+        #user = user_data_manager.get_user_by_email(user_input_email)
+        #if not user:
+        #    error_label.config(text="Email not found. Please try again.")
+        #    return
 
-    # --- Verify Button ---
+        # Save user info for OTP screen
+        #app.login_attempt_user = user
+        app.user_input_email = user_input_email
+
+        # Dummy OTP for now
+        app.generated_otp = "123456"
+        messagebox.showinfo("OTP Sent", f"A 6-digit code (dummy) was sent to {user_input_email}")
+
+        # Proceed to OTP screen
+        show_otp_verification_screen_forgot_password(app)
+
+    # --- Reusable rounded button ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
         wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
         wrapper.pack(pady=0)
@@ -394,17 +403,154 @@ def show_otp_verification_screen_forgot_password(app):
         canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
         canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
 
-        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
+        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=font_button)
         def on_click(event):
             if command: command()
         canvas.tag_bind(btn_text, "<Button-1>", on_click)
         canvas.bind("<Button-1>", on_click)
         return wrapper
 
-    button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
-    button_wrapper.pack(pady=(0, 30))
-    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp)
+    create_rounded_button(card, "Continue", command=continue_to_otp)
 
+
+def show_otp_verification_screen_forgot_password(app):
+    """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
+    LIGHT_CARD_BG = "#AD567C"
+
+    # Clear old widgets
+    for widget in app.content_frame.winfo_children():
+        widget.destroy()
+
+    import tkinter.font as tkFont
+    from .other_screens import show_applications_screen
+    font_title = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_text = tkFont.Font(family="Poppins", size=12)
+    font_small = tkFont.Font(family="Poppins", size=10)
+    font_button = tkFont.Font(family="Poppins", size=11)
+
+    # --- Card ---
+    card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
+    card.pack(pady=(30, 20))  # 30px top, 20px bottom
+    card.pack_propagate(False)
+
+    # --- Title ---
+    tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
+
+    # --- Info Text ---
+    # email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com' # JC Change comment whole line
+    email = getattr(app, "temp_new_email", None) or (
+        app.currently_logged_in_user.get('email', 'your_email@example.com')
+        if app.currently_logged_in_user else 'your_email@example.com'
+    )
+    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
+
+    # --- OTP Entry ---
+    app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
+    app.otp_entry.pack(ipady=6, pady=(0, 10))
+
+    # --- Error Label ---
+    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    app.otp_error_label.pack(pady=(0, 10))
+
+    # --- Send Code Label ---
+    tk.Label(card, text="Didn't Receive Code?", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 5))
+
+    # --- Send Code Button ---
+    # def send_code():
+    #     messagebox.showinfo("Send Code", f"OTP code sent to {email}")
+    # --- Send Code Button (real resend logic) ---
+    def send_code():
+        email = getattr(app, "temp_new_email", None)
+        if not email:
+            messagebox.showerror("Error", "No email found. Please go back and enter your email again.")
+            return
+        try:
+            from OTP.send_otp import send_otp
+            success, msg = send_otp(email)
+            if success:
+                messagebox.showinfo("Send Code", msg)
+            else:
+                messagebox.showerror("Send Code Failed", msg)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to resend OTP: {e}")
+
+    tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
+
+    		
+    # --- Verify Function (bypasses OTP for testing) ---
+    def verify_otp_newEmail():
+        # Always allow for testing
+        # Always allow for testing
+        # show_applications_screen(app)
+        entered_code = app.otp_entry.get().strip()
+        print("1")
+        try:
+            print("2")
+            from OTP.send_otp import verify_otp as backend_verify_otp
+            print("3")
+            success = backend_verify_otp(entered_code)
+            print("4")
+            if success:
+                print("5")
+                user = app.currently_logged_in_user
+                print("6")
+                old_email = user.get('email', 'unknown@example.com')
+                print("7")
+                new_email = getattr(app, "temp_new_email", 'unknown@example.com')
+                print("8")
+                # Update email
+                update_email(old_email, new_email)
+                print("9")
+                print(f"Email changed from {old_email} to {new_email}")
+                print("10")
+                
+                messagebox.showinfo(
+                    "Success",
+                    f"Email successfully changed and verified via OTP!\n\n"
+                    f"Old Email: {old_email}\n"
+                    f"New Email: {new_email}"
+                )
+                
+                # Update the current user's email after successful OTP verification
+                app.currently_logged_in_user['email'] = new_email
+                
+                show_applications_screen(app)
+            else:
+                app.otp_error_label.config(text="Invalid or expired OTP. Please try again.")
+        except Exception as e:
+            messagebox.showerror("Error", f"OTP verification failed: {e}")
+
+    # --- Rounded Verify Button ---
+    def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
+        wrapper = tk.Frame(parent, bg=LIGHT_CARD_BG)
+        wrapper.pack(pady=0)  # spacing handled by wrapper frame below
+
+        canvas = tk.Canvas(wrapper, width=width, height=height, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0, relief="flat", cursor="hand2")
+        canvas.pack()
+
+        x1, y1, x2, y2 = 2, 2, width-2, height-2
+        canvas.create_oval(x1, y1, x1 + radius*2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y1, x2, y1 + radius*2, fill=bg, outline=bg)
+        canvas.create_oval(x1, y2 - radius*2, x1 + radius*2, y2, fill=bg, outline=bg)
+        canvas.create_oval(x2 - radius*2, y2 - radius*2, x2, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1 + radius, y1, x2 - radius, y2, fill=bg, outline=bg)
+        canvas.create_rectangle(x1, y1 + radius, x2, y2 - radius, fill=bg, outline=bg)
+
+        btn_text = canvas.create_text(width//2, height//2, text=text, fill=fg, font=app.font_normal)
+
+        def on_click(event):
+            if command:
+                command()
+        canvas.tag_bind(btn_text, "<Button-1>", on_click)
+        canvas.bind("<Button-1>", on_click)
+
+        return wrapper
+
+    # --- Place the button below the card with proper bottom margin ---
+    button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
+    button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
+    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp_newEmail)
+    
 def show_new_password_screen(app):
     """
     Simplified Change Password screen:

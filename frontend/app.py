@@ -12,7 +12,9 @@ from utils import audio_handler, helpers
 from ui import application_settings
 from ui.login_flow import show_new_password_screen
 from ui.application_settings import show_change_otp_settings_screen
-
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
+from user_profile import load_session, save_session, clear_session
 
 class KeyVoxApp:
     def __init__(self, root):
@@ -86,8 +88,8 @@ class KeyVoxApp:
             self.otp_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "otp_settings.png")).resize((60, 60)))
             self.usb_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb.png")).resize((230, 230)))
             self.bg_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "bg.png")).resize((self.width, self.height)))
-            self.eye_open_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_open.png")).resize((20, 20)))
-            self.eye_closed_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_closed.png")).resize((20, 20)))
+            self.eye_open_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_closed.png")).resize((20, 20)))
+            self.eye_closed_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_open.png")).resize((20, 20)))
             self.dot_filled_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "dot_filled.png")).resize((12, 12)))
             self.dot_empty_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "dot_empty.png")).resize((12, 12)))
             self.profile_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "profile.png")).resize((100, 100)))
@@ -135,7 +137,7 @@ class KeyVoxApp:
             self.root.destroy()
         else:
             print("✅ Backend server connected.")
-            self.show_welcome_screen()
+            self.show_insert_key_screen()
 
     # =========================================================
     # SCREEN NAVIGATION
@@ -247,3 +249,5 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = KeyVoxApp(root)
     root.mainloop()
+
+
