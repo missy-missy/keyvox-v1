@@ -5,6 +5,12 @@ import frontend_config as config
 from ui import ui_helpers
 from ui import home_screens # <--- CHANGE #1: ADD THIS IMPORT AT THE TOP
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
+from user_data_manager import get_user_by_key, update_email, get_user_by_email, get_user_by_username, change_password
+
+
+
 def show_username_entry_screen(app):
     """Shows the screen for the user to enter their username."""
     LIGHT_CARD_BG = "#AD567C"
@@ -304,7 +310,17 @@ def show_password_screen(app):
 
     # --- Forgot Password Link ---
     def handle_forgot_password():
-        show_email_verification_screen_forgot_password(app)  # go to OTP verification
+        if hasattr(app, "login_attempt_user") and app.login_attempt_user:
+            app.forgot_pw_username = app.login_attempt_user.get("username", "")
+        else:
+            app.forgot_pw_username = ""
+        
+        if not app.forgot_pw_username:
+            messagebox.showerror("Error", "Username not found. Please go back and enter it first.")
+            return
+
+        show_email_verification_screen_forgot_password(app)
+
 
     forgot_label = tk.Label(
         content_wrapper,
@@ -332,6 +348,9 @@ def show_email_verification_screen_forgot_password(app):
     from tkinter import messagebox
     import tkinter.font as tkFont
 
+    forgotpwuser = getattr(app, "forgot_pw_username", "")
+    print(forgotpwuser)
+
     LIGHT_CARD_BG = "#AD567C"
 
     # --- Clear old widgets ---
@@ -351,7 +370,7 @@ def show_email_verification_screen_forgot_password(app):
 
     # --- Title ---
     tk.Label(card, text="Forgot Password", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
-    tk.Label(card, text="Enter your registered email to receive a verification code.", 
+    tk.Label(card, text=f"Enter your registered email for this USER: '{forgotpwuser}' to receive a verification code.", 
              font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
 
     # --- Email Entry ---
@@ -364,27 +383,39 @@ def show_email_verification_screen_forgot_password(app):
 
     # --- Continue Button ---
     def continue_to_otp():
+        """Verify user exists and email matches before proceeding."""
         user_input_email = email_entry.get().strip()
+        forgotpwuser = getattr(app, "forgot_pw_username", "")
+
         if not user_input_email:
             error_label.config(text="Please enter your email.")
             return
 
-        # Simulate checking email in database
-        #user = user_data_manager.get_user_by_email(user_input_email)
-        #if not user:
-        #    error_label.config(text="Email not found. Please try again.")
-        #    return
+        if not forgotpwuser:
+            error_label.config(text="No username found. Go back and enter username first.")
+            return
 
-        # Save user info for OTP screen
-        #app.login_attempt_user = user
-        app.user_input_email = user_input_email
+        # --- Get user data by key ---
+        user_data = get_user_by_key(forgotpwuser)
 
-        # Dummy OTP for now
-        app.generated_otp = "123456"
-        messagebox.showinfo("OTP Sent", f"A 6-digit code (dummy) was sent to {user_input_email}")
+        if not user_data:
+            error_label.config(text=f"No user found with username '{forgotpwuser}'.")
+            return
 
-        # Proceed to OTP screen
-        show_otp_verification_screen_forgot_password(app)
+        stored_email = user_data.get("email", "").lower()
+        if stored_email != user_input_email.lower():
+            msg1 = f"The email you entered '{user_input_email.lower()}' does not match our records for USER: '{forgotpwuser}'."
+            # Update the label
+            error_label.config(text=msg1)
+            messagebox.showerror("Email Mismatch", msg1)
+            return
+
+        # --- If everything matches, proceed ---
+        error_label.config(text="Email Matched!\nAn OTP will be sent shortly to your registered email address.")  # placeholder action
+        messagebox.showinfo("Email Matched!","An OTP will be sent shortly to your registered email address.")
+        # You can now show next screen or enable a "Continue" button
+        show_otp_verification_screen_forgot_password(app,stored_email)
+
 
     # --- Reusable rounded button ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
@@ -413,7 +444,7 @@ def show_email_verification_screen_forgot_password(app):
     create_rounded_button(card, "Continue", command=continue_to_otp)
 
 
-def show_otp_verification_screen_forgot_password(app):
+def show_otp_verification_screen_forgot_password(app, stored_email):
     """Shows a styled OTP verification screen with dummy bypass and proper bottom margin."""
     LIGHT_CARD_BG = "#AD567C"
 
@@ -436,13 +467,7 @@ def show_otp_verification_screen_forgot_password(app):
     # --- Title ---
     tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
 
-    # --- Info Text ---
-    # email = app.currently_logged_in_user.get('email', 'your_email@example.com') if app.currently_logged_in_user else 'your_email@example.com' # JC Change comment whole line
-    email = getattr(app, "temp_new_email", None) or (
-        app.currently_logged_in_user.get('email', 'your_email@example.com')
-        if app.currently_logged_in_user else 'your_email@example.com'
-    )
-    tk.Label(card, text=f"Enter the 6-digit code sent to {email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
+    tk.Label(card, text=f"Enter the 6-digit code sent to your registered email address {stored_email}", font=font_small, fg="white", bg=LIGHT_CARD_BG, wraplength=380).pack(pady=(0, 15))
 
     # --- OTP Entry ---
     app.otp_entry = tk.Entry(card, font=font_text, width=20, justify="center")
@@ -457,68 +482,62 @@ def show_otp_verification_screen_forgot_password(app):
 
     # --- Send Code Button ---
     # def send_code():
-    #     messagebox.showinfo("Send Code", f"OTP code sent to {email}")
-    # --- Send Code Button (real resend logic) ---
+    #     email = getattr(app, "temp_new_email", None)
+    #     if not email:
+    #         messagebox.showerror("Error", "No email found. Please go back and enter your email again.")
+    #         return
+    #     try:
+    #         from OTP.send_otp import send_otp
+    #         success, msg = send_otp(email)
+    #         if success:
+    #             messagebox.showinfo("Send Code", msg)
+    #         else:
+    #             messagebox.showerror("Send Code Failed", msg)
+    #     except Exception as e:
+    #         messagebox.showerror("Error", f"Failed to resend OTP: {e}")
+
     def send_code():
-        email = getattr(app, "temp_new_email", None)
-        if not email:
-            messagebox.showerror("Error", "No email found. Please go back and enter your email again.")
-            return
+        # email = app.user_email_for_otp
         try:
             from OTP.send_otp import send_otp
-            success, msg = send_otp(email)
+            success, message = send_otp(stored_email)
             if success:
-                messagebox.showinfo("Send Code", msg)
+                messagebox.showinfo("OTP Sent", message)
             else:
-                messagebox.showerror("Send Code Failed", msg)
+                app.otp_error_label.config(text=message)
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to resend OTP: {e}")
+            err_msg = f"❌ Error sending OTP: {e}"
+            app.otp_error_label.config(text=err_msg)
+            messagebox.showerror("Error", err_msg)
 
     tk.Button(card, text="Send Code", font=font_small, command=send_code, bg="#F5F5F5").pack(pady=(0, 10))
 
-    		
-    # --- Verify Function (bypasses OTP for testing) ---
-    def verify_otp_newEmail():
-        # Always allow for testing
-        # Always allow for testing
-        # show_applications_screen(app)
-        entered_code = app.otp_entry.get().strip()
-        print("1")
+        # --- Verify Function (bypasses OTP for testing) ---
+    def verify_otp_forgotPassword():
+        otp = app.otp_entry.get()
         try:
-            print("2")
-            from OTP.send_otp import verify_otp as backend_verify_otp
-            print("3")
-            success = backend_verify_otp(entered_code)
-            print("4")
+            from OTP.send_otp import verify_otp
+            success = verify_otp(otp)
             if success:
-                print("5")
-                user = app.currently_logged_in_user
-                print("6")
-                old_email = user.get('email', 'unknown@example.com')
-                print("7")
-                new_email = getattr(app, "temp_new_email", 'unknown@example.com')
-                print("8")
-                # Update email
-                update_email(old_email, new_email)
-                print("9")
-                print(f"Email changed from {old_email} to {new_email}")
-                print("10")
+                messagebox.showinfo("Success", "OTP verified successfully!")
+
+                # # ✅ Update email now that OTP is verified
+                # full_name = app.new_enrollment_data.get("full_name")
+                # new_email = app.user_email_for_otp
+                # update_email_by_name_and_blank_email(full_name, new_email)
+
+                # # Update app.new_enrollment_data to reflect verified email
+                # app.new_enrollment_data['email'] = new_email
+
+                # Proceed to next step to update password
+                show_new_password_screen(app)
                 
-                messagebox.showinfo(
-                    "Success",
-                    f"Email successfully changed and verified via OTP!\n\n"
-                    f"Old Email: {old_email}\n"
-                    f"New Email: {new_email}"
-                )
-                
-                # Update the current user's email after successful OTP verification
-                app.currently_logged_in_user['email'] = new_email
-                
-                show_applications_screen(app)
             else:
                 app.otp_error_label.config(text="Invalid or expired OTP. Please try again.")
         except Exception as e:
-            messagebox.showerror("Error", f"OTP verification failed: {e}")
+            err_msg = f"❌ Error verifying OTP: {e}"
+            app.otp_error_label.config(text=err_msg)
+            messagebox.showerror("Error", err_msg)
 
     # --- Rounded Verify Button ---
     def create_rounded_button(parent, text, command=None, radius=15, width=200, height=40, bg="#F5F5F5", fg="black"):
@@ -549,7 +568,7 @@ def show_otp_verification_screen_forgot_password(app):
     # --- Place the button below the card with proper bottom margin ---
     button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
-    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp_newEmail)
+    create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp_forgotPassword)
     
 def show_new_password_screen(app):
     """
@@ -591,7 +610,7 @@ def show_new_password_screen(app):
     # --- Subtitle ---
     tk.Label(
         card,
-        text="Enter a new password for your account",
+        text="Enter a new password for your current account",
         font=font_subtitle,
         fg="white",
         bg=LIGHT_CARD_BG
@@ -655,21 +674,35 @@ def show_new_password_screen(app):
     ).pack(side="left")
 
     # Save Changes button → straight to OTP
+    from utils.validators import validate_password
+
     def dummy_save_password():
         data = {key: entry.get() for key, entry in app.entry_widgets.items()}
 
-        # Basic validation
+        # --- Basic empty checks ---
         if not all(data.values()):
             app.enroll_error_label.config(text="All fields are required.")
             return
+
+        # --- Password match check ---
         if data["new_password"] != data["confirm_password"]:
             app.enroll_error_label.config(text="New passwords do not match.")
             return
 
-        messagebox.showinfo("Success", "Password updated (dummy). Proceeding to Home Screen...")
-
-        # Go straight to OTP
-        app.show_home_screen()  # Go back to home first to reset state
+        # --- Password strength check ---
+        is_valid, error_msg = validate_password(data["new_password"])
+        if not is_valid:
+            app.enroll_error_label.config(text=error_msg)
+            return
+        
+        # --- Save new password via user_data_manager ---
+        try:
+            forgotpwuser = getattr(app, "forgot_pw_username", "")
+            change_password(forgotpwuser, data["new_password"])
+            messagebox.showinfo("Success", "Password updated successfully!")
+            app.show_home_screen()  # Or next step
+        except Exception as e:
+            app.enroll_error_label.config(text=f"Error updating password: {e}")
 
     tk.Button(
         bf, text="Save Changes", font=font_button,

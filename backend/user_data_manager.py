@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+import hashlib
+
 
 # users.json in the same folder as this script
 USER_FILE = Path(__file__).parent / "users.json"
@@ -56,3 +58,38 @@ def update_email_by_name_and_blank_email(full_name, new_email, user_file=USER_FI
             return
 
     raise ValueError(f"No user with full_name '{full_name}' and blank email found.")
+
+
+def get_user_by_key(key, user_file=USER_FILE):
+    """
+    Find a user by their dictionary key in users.json.
+    Example keys: 'jc', 'user102'
+    """
+    users = load_users(user_file)
+    return users.get(key)
+
+
+def hash_password(password: str) -> str:
+    """Return SHA-256 hash of the password as hex."""
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+def change_password(user_key: str, new_password: str, user_file=USER_FILE):
+    """
+    Updates the password_hash for the specified user in users.json.
+    
+    Args:
+        user_key: The key in users.json (e.g., 'jc', 'user102').
+        new_password: The new plaintext password to set.
+    """
+    with open(user_file, "r") as f:
+        users = json.load(f)
+
+    if user_key not in users:
+        raise KeyError(f"User '{user_key}' not found in {user_file}.")
+
+    users[user_key]['password_hash'] = hash_password(new_password)
+
+    with open(user_file, "w") as f:
+        json.dump(users, f, indent=4)
+
+    print(f"Password for user '{user_key}' updated successfully.")
