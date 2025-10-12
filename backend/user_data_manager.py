@@ -40,3 +40,19 @@ def get_user_by_email(email, user_file=USER_FILE):
         if user.get("email", "").lower() == email.lower():
             return user
     return None
+
+def update_email_by_name_and_blank_email(full_name, new_email, user_file=USER_FILE):
+    """
+    Updates a user's email using their full name, only if their email is blank.
+    """
+    with open(user_file, "r") as f:
+        users = json.load(f)
+
+    for user in users.values():
+        if user.get("full_name") == full_name and user.get("email") == "":
+            user["email"] = new_email
+            with open(user_file, "w") as f:
+                json.dump(users, f, indent=4)
+            return
+
+    raise ValueError(f"No user with full_name '{full_name}' and blank email found.")
