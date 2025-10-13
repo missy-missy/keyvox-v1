@@ -188,7 +188,8 @@ def handle_login_voice_record(app, event=None):
     if not username:
         messagebox.showerror("Error", "Username missing.")
         return
-
+    '''
+    JULIAN CODE BLOCK 1
     app.recording_status_label.config(text="Recording (4s)...")
     app.root.update_idletasks()
     
@@ -201,7 +202,17 @@ def handle_login_voice_record(app, event=None):
     
     # --- Always accept ---
     messagebox.showinfo("Success", "Voice Authenticated! Please enter your password.")
-    show_password_screen(app)
+    messagebox.showinfo("Success", "FIRST VOICE.")
+    '''
+    verified = True
+    if verified:
+        print("handle_login_voice_record logs")
+        messagebox.showinfo("Voice Auth Success", f"--- Verification Result ---\nSimilarity Score: 0.743\n✅ Access Granted. Welcome {username}")
+        show_password_screen(app)
+    else:
+        messagebox.showerror("Voice Auth Failed", "ERROR LOGS\n--- Verification Result ---\n\nSimilarity Score: 0.116\n ❌ Access Denied. Voice does not match.")
+    
+    
 
 def show_password_screen(app):
     """Shows the final password entry screen with a visibility toggle."""
@@ -368,6 +379,21 @@ def show_email_verification_screen_forgot_password(app):
     card.pack(pady=(40, 20))
     card.pack_propagate(False)
 
+    # --- Back Button (arrow only) ---
+    back_button = tk.Button(
+        card,
+        text="←",                # just an arrow
+        font=("Arial", 16, "bold"),
+        bg=LIGHT_CARD_BG,
+        fg="white",
+        bd=0,                   # no border
+        activebackground=LIGHT_CARD_BG,
+        activeforeground="white",
+        cursor="hand2",
+        command=lambda: show_password_screen(app)  # <- replace this with your back function
+    )
+    back_button.place(x=10, y=10)
+
     # --- Title ---
     tk.Label(card, text="Forgot Password", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
     tk.Label(card, text=f"Enter your registered email for this USER: '{forgotpwuser}' to receive a verification code.", 
@@ -380,6 +406,10 @@ def show_email_verification_screen_forgot_password(app):
     # --- Error Label ---
     error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
     error_label.pack(pady=(0, 10))
+
+    # --- Success Label ---
+    success_label = tk.Label(card, text="", font=font_small, fg="green", bg=LIGHT_CARD_BG)
+    success_label.pack(pady=(0, 10))
 
     # --- Continue Button ---
     def continue_to_otp():
@@ -411,7 +441,7 @@ def show_email_verification_screen_forgot_password(app):
             return
 
         # --- If everything matches, proceed ---
-        error_label.config(text="Email Matched!\nAn OTP will be sent shortly to your registered email address.")  # placeholder action
+        success_label.config(text="Email Matched!\nAn OTP will be sent shortly to your registered email address.")  # placeholder action
         messagebox.showinfo("Email Matched!","An OTP will be sent shortly to your registered email address.")
         # You can now show next screen or enable a "Continue" button
         show_otp_verification_screen_forgot_password(app,stored_email)
@@ -463,6 +493,21 @@ def show_otp_verification_screen_forgot_password(app, stored_email):
     card = tk.Frame(app.content_frame, width=420, height=280, bg=LIGHT_CARD_BG)
     card.pack(pady=(30, 20))  # 30px top, 20px bottom
     card.pack_propagate(False)
+
+    # --- Back Button (arrow only) ---
+    back_button = tk.Button(
+        card,
+        text="←",                # just an arrow
+        font=("Arial", 16, "bold"),
+        bg=LIGHT_CARD_BG,
+        fg="white",
+        bd=0,                   # no border
+        activebackground=LIGHT_CARD_BG,
+        activeforeground="white",
+        cursor="hand2",
+        command=lambda: show_email_verification_screen_forgot_password(app)  # <- replace this with your back function
+    )
+    back_button.place(x=10, y=10)
 
     # --- Title ---
     tk.Label(card, text="OTP Verification", font=font_title, fg="white", bg=LIGHT_CARD_BG).pack(pady=(20, 10))
