@@ -54,3 +54,6 @@ backend/mfcc_features/
 # These folders are for transient files during operation.
 backend/temp_uploads/
 frontend/temp_audio/
+
+# Ignore sensitive or large data
+backend/OTP/OTP_Email.txt

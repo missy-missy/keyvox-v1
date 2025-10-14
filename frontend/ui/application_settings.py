@@ -641,3 +641,274 @@ def show_change_otp_settings_verification_screen(app):
     button_wrapper = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
     button_wrapper.pack(pady=(0, 30))  # 30px bottom margin
     create_rounded_button(button_wrapper, "Verify OTP", command=verify_otp_newEmail)
+
+# --------------- Manage Files ------------------------
+def show_manage_files_screen(app):
+    """Displays the Manage Files screen (upload, view, delete) backed by backend/users.json."""
+    import os, sys
+    import tkinter as tk
+    import tkinter.font as tkFont
+    from tkinter import filedialog as fd, messagebox
+
+    # --- Ensure backend imports ---
+    backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend"))
+    if backend_dir not in sys.path:
+        sys.path.insert(0, backend_dir)
+
+    try:
+        from locked_files_store import (
+            load_locked_files, append_locked_file, remove_locked_file_by_index,
+            MAX_LOCKED_FILES, build_meta_for_existing_path
+        )
+    except Exception as e:
+        for w in app.content_frame.winfo_children():
+            w.destroy()
+        tk.Label(app.content_frame, text=f"Cannot import locked_files_store: {e}",
+                 font=("Poppins", 11), fg="red", bg="#AD567C").pack(pady=20)
+        return
+
+    LIGHT_CARD_BG = "#AD567C"
+
+    # --- Clear old widgets ---
+    for w in app.content_frame.winfo_children():
+        w.destroy()
+
+    # --- Fonts ---
+    font_title    = tkFont.Font(family="Poppins", size=14, weight="bold")
+    font_subtitle = tkFont.Font(family="Poppins", size=10)
+    font_small    = tkFont.Font(family="Poppins", size=9)
+    font_button   = tkFont.Font(family="Poppins", size=10)
+
+    # --- Resolve active username ---
+    def _active_username():
+        u = getattr(app, "currently_logged_in_user", None)
+        if isinstance(u, dict):
+            name = u.get("username") or u.get("user") or u.get("name")
+            if name:
+                return name
+        return getattr(app, "logged_in_username", None)
+
+    username = _active_username()
+
+    # --- If not logged in ---
+    if not username:
+        card = tk.Frame(app.content_frame, width=720, height=220, bg=LIGHT_CARD_BG)
+        card.pack(pady=28); card.pack_propagate(False)
+        tk.Label(card, text="Manage Files", font=font_title, fg="white", bg=LIGHT_CARD_BG)\
+            .pack(anchor="w", padx=40, pady=(20, 6))
+        tk.Label(card, text="Please log in to upload, view, or delete locked files.",
+                 font=font_subtitle, fg="white", bg=LIGHT_CARD_BG)\
+            .pack(anchor="w", padx=40, pady=(0, 10))
+        return
+
+    # --- Card (centered) ---
+    card = tk.Frame(app.content_frame, width=720, height=440, bg=LIGHT_CARD_BG)
+    card.pack(expand=True)
+    card.pack_propagate(False)
+
+    # --- Top Bar (Back Button + Title) ---
+    top_bar = tk.Frame(card, bg=LIGHT_CARD_BG)
+    top_bar.pack(fill="x", pady=(20, 10), padx=30)
+
+    back_button = tk.Button(
+        top_bar,
+        image=app.back_img,
+        bg=LIGHT_CARD_BG,
+        relief="flat",
+        bd=0,
+        activebackground=LIGHT_CARD_BG,
+        cursor="hand2",
+        command=lambda: app.show_applications_screen()
+    )
+    back_button.pack(side="left")
+
+    tk.Label(
+        top_bar,
+        text="Manage Files",
+        font=("Poppins", 14, "bold"),
+        fg="white",
+        bg=LIGHT_CARD_BG
+    ).pack(side="left", padx=(10, 0))
+
+    # --- Subtitle ---
+    tk.Label(
+        card,
+        text="Upload, view, or delete files used for authentication.",
+        font=("Poppins", 10),
+        fg="white",
+        bg=LIGHT_CARD_BG
+    ).pack(anchor="w", padx=50, pady=(0, 15))
+
+    # --- Listbox (centered) ---
+    list_wrap = tk.Frame(card, bg=LIGHT_CARD_BG)
+    list_wrap.pack(padx=50, pady=(0, 20), fill="x")
+
+    file_listbox = tk.Listbox(
+        list_wrap, font=("Poppins", 11),
+        selectmode="extended", height=8,
+        activestyle="none"
+    )
+    file_listbox.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(list_wrap, orient="vertical", command=file_listbox.yview)
+    scrollbar.pack(side="right", fill="y")
+    file_listbox.config(yscrollcommand=scrollbar.set)
+
+    # --- Load user files ---
+    try:
+        app.managed_files = load_locked_files(username) or []
+        load_error = ""
+    except Exception as e:
+        app.managed_files = []
+        load_error = str(e)
+
+    # --- Empty state ---
+    empty_state = tk.Label(
+        list_wrap,
+        text="No locked files yet.\nClick ‘Upload File’ to add one.",
+        font=font_subtitle,
+        fg="white",
+        bg=LIGHT_CARD_BG,
+        justify="center"
+    )
+
+    def _toggle_empty_state():
+        if len(app.managed_files) == 0:
+            empty_state.pack(expand=True)
+        else:
+            empty_state.pack_forget()
+
+    # --- Feedback message line ---
+    msg_var = tk.StringVar(value=("" if not load_error else f"Note: {load_error}"))
+    msg_lbl = tk.Label(card, textvariable=msg_var, font=font_small, fg="white", bg=LIGHT_CARD_BG)
+    msg_lbl.pack(anchor="w", padx=50, pady=(6, 0))
+
+    def _set_msg(text, color="white"):
+        msg_var.set(text)
+        msg_lbl.config(fg=color)
+
+    # ===================================================
+    #                ACTION HANDLERS
+    # ===================================================
+    def do_upload_file():
+        if not username:
+            _set_msg("Not logged in.", color="#FFEBEE")
+            return
+        if len(app.managed_files) >= MAX_LOCKED_FILES:
+            _set_msg(f"Limit reached ({MAX_LOCKED_FILES}).", color="#FFEBEE")
+            return
+
+        path = fd.askopenfilename(title="Select a file to link")
+        if not path:
+            return
+
+        # --- Prevent duplicates by filename ---
+        new_name = os.path.basename(path).lower()
+        existing_names = {it["name"].lower() for it in app.managed_files if "name" in it}
+        if new_name in existing_names:
+            _set_msg(f"'{os.path.basename(path)}' is already in the list.", color="#FFEBEE")
+            return
+
+        try:
+            meta = build_meta_for_existing_path(path)  # just references path
+            append_locked_file(username, meta)         # writes to users.json
+            app.managed_files = load_locked_files(username)
+            _refresh_list()
+            _set_msg(f"Added: {meta['name']}", color="#E8F5E9")
+        except Exception as e:
+            _set_msg(f"Upload failed: {e}", color="#FFEBEE")
+
+    def do_view_selected(_evt=None):
+        sels = list(file_listbox.curselection())
+        if not sels:
+            _set_msg("Select a file to view.", color="#FFEBEE")
+            return
+        if len(sels) > 1:
+            _set_msg("Opening the first selected file only.", color="white")
+
+        idx = sels[0]
+        item = app.managed_files[idx]
+        path = item.get("path")
+        if not path or not os.path.exists(path):
+            _set_msg("File not found on disk. It may have been moved or renamed.", color="#FFEBEE")
+            return
+
+        try:
+            if sys.platform.startswith("win"):
+                os.startfile(path)
+            elif sys.platform == "darwin":
+                import subprocess; subprocess.Popen(["open", path])
+            else:
+                import subprocess; subprocess.Popen(["xdg-open", path])
+            _set_msg(f"Opened: {item['name']}")
+        except Exception as e:
+            _set_msg(f"Cannot open file: {e}", color="#FFEBEE")
+
+    def do_delete_selected():
+        if not username:
+            _set_msg("Not logged in.", color="#FFEBEE")
+            return
+
+        sels = list(file_listbox.curselection())
+        if not sels:
+            _set_msg("Select one or more files to delete.", color="#FFEBEE")
+            return
+
+        if not messagebox.askyesno("Delete From List", f"Remove {len(sels)} item(s) from the list?"):
+            return
+
+        sels.sort(reverse=True)
+        for idx in sels:
+            remove_locked_file_by_index(username, idx)
+
+        app.managed_files = load_locked_files(username)
+        _refresh_list()
+        _set_msg(f"Removed {len(sels)} item(s) from the list.", color="#FFEBEE")
+
+    # ===================================================
+    #                BUTTONS ROW
+    # ===================================================
+    actions = tk.Frame(card, bg=LIGHT_CARD_BG)
+    actions.pack(pady=(10, 10))
+
+    btn_style = dict(
+        font=font_button,
+        relief="flat",
+        bg="#F5F5F5",
+        fg="black",
+        padx=15,
+        pady=6
+    )
+
+    upload_btn = tk.Button(actions, text="Upload File", command=do_upload_file, **btn_style)
+    upload_btn.pack(side="left", padx=10)
+
+    view_btn = tk.Button(actions, text="View Selected", command=do_view_selected, **btn_style)
+    view_btn.pack(side="left", padx=10)
+
+    del_btn = tk.Button(actions, text="Delete Selected", command=do_delete_selected, **btn_style)
+    del_btn.pack(side="left", padx=10)
+
+    # ===================================================
+    #                SUPPORTING FUNCTIONS
+    # ===================================================
+    def _update_button_states(_evt=None):
+        sels = file_listbox.curselection()
+        count = len(sels)
+        view_btn.config(state=("normal" if count == 1 else "disabled"))
+        del_btn.config(state=("normal" if count >= 1 else "disabled"))
+
+    def _refresh_list():
+        file_listbox.delete(0, tk.END)
+        for item in app.managed_files:
+            file_listbox.insert(tk.END, item.get("name", "(unnamed)"))
+        _toggle_empty_state()
+        _update_button_states()
+
+    # --- Bindings ---
+    file_listbox.bind("<<ListboxSelect>>", _update_button_states)
+    file_listbox.bind("<Double-Button-1>", do_view_selected)
+    file_listbox.bind("<Delete>", lambda e: do_delete_selected())
+
+    # --- Initial render ---
+    _refresh_list()
