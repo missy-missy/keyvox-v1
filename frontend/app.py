@@ -11,7 +11,7 @@ from ui import ui_helpers, home_screens, login_flow, enrollment_flow, other_scre
 from utils import audio_handler, helpers
 from ui import application_settings
 from ui.login_flow import show_new_password_screen
-from ui.application_settings import show_change_otp_settings_screen
+from ui.application_settings import show_change_otp_settings_screen, show_manage_files_screen
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
 from user_profile import load_session, save_session, clear_session
@@ -84,10 +84,10 @@ class KeyVoxApp:
 
             # Main images
             self.logo_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "logo.png")).resize((110, 110)))
-            self.key_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "key.png")).resize((60, 60)))
-            self.mic_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "mic.png")).resize((60, 60)))
+            self.key_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "key.png")).resize((50, 50)))
+            self.mic_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "mic.png")).resize((50, 50)))
             self.otp_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "otp_settings.png")).resize((60, 60)))
-            self.usb_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb.png")).resize((230, 230)))
+            self.usb_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb.png")).resize((90, 90)))
             self.bg_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "bg.png")).resize((self.width, self.height)))
             self.eye_open_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_closed.png")).resize((20, 20)))
             self.eye_closed_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "eyes_open.png")).resize((20, 20)))
@@ -96,6 +96,14 @@ class KeyVoxApp:
             self.profile_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "profile.png")).resize((100, 100)))
             self.card_bg_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "card_background.png")))
             self.lock_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "lock.png")).resize((90, 90)))
+            self.folder_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "folder.png")).resize((60, 60)))
+            self.back_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "back-button.png")).resize((22, 22)))
+            self.usb_img_2 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb2.png")).resize((90, 90)))
+            self.usb_img_3 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb3.png")).resize((90, 90)))
+            self.usb_img_4 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb4.png")).resize((50, 50)))
+            
+
+
 
             # Optional icons (info/help)
             try:
@@ -127,6 +135,7 @@ class KeyVoxApp:
         self.font_medium_bold = font.Font(family=config.FONT_FAMILY, size=14, weight="bold")
         self.font_normal = font.Font(family=config.FONT_FAMILY, size=10)
         self.font_small = font.Font(family=config.FONT_FAMILY, size=9)
+        self.font_normal_bold = font.Font(family=config.FONT_FAMILY, size=10, weight="bold")
 
     # =========================================================
     # SERVER CHECK AND STARTUP FLOW
@@ -165,9 +174,9 @@ class KeyVoxApp:
     def show_password_screen_voice_entry1(self): application_settings.show_password_screen_voice_entry1(self)
     def show_otp_settings_screen(self): application_settings.show_otp_settings_screen(self)
     def show_change_OTP_step1_voice_auth_screen(self): application_settings.show_change_OTP_step1_voice_auth_screen(self)
-
     def show_new_password_screen(self): show_new_password_screen(self)
     def show_change_otp_settings_screen(self): show_change_otp_settings_screen(self)
+    def show_manage_files_screen(self): show_manage_files_screen(self)
 
     # =========================================================
     # UTILITIES

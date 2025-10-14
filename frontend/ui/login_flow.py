@@ -379,18 +379,15 @@ def show_email_verification_screen_forgot_password(app):
     card.pack(pady=(40, 20))
     card.pack_propagate(False)
 
-    # --- Back Button (arrow only) ---
     back_button = tk.Button(
         card,
-        text="←",                # just an arrow
-        font=("Arial", 16, "bold"),
+        image=app.back_img,        # use the loaded image
         bg=LIGHT_CARD_BG,
-        fg="white",
-        bd=0,                   # no border
+        relief="flat",
+        bd=0,
         activebackground=LIGHT_CARD_BG,
-        activeforeground="white",
         cursor="hand2",
-        command=lambda: show_password_screen(app)  # <- replace this with your back function
+        command=lambda: show_password_screen(app)
     )
     back_button.place(x=10, y=10)
 
@@ -434,7 +431,7 @@ def show_email_verification_screen_forgot_password(app):
 
         stored_email = user_data.get("email", "").lower()
         if stored_email != user_input_email.lower():
-            msg1 = f"The email you entered '{user_input_email.lower()}' does not match our records for USER: '{forgotpwuser}'."
+            msg1 = f"The email you entered '{user_input_email.lower()}' \ndoes not match our records for USER: '{forgotpwuser}'."
             # Update the label
             error_label.config(text=msg1)
             messagebox.showerror("Email Mismatch", msg1)
@@ -494,18 +491,29 @@ def show_otp_verification_screen_forgot_password(app, stored_email):
     card.pack(pady=(30, 20))  # 30px top, 20px bottom
     card.pack_propagate(False)
 
-    # --- Back Button (arrow only) ---
+    # # --- Back Button (arrow only) ---
+    # back_button = tk.Button(
+    #     card,
+    #     text="←",                # just an arrow
+    #     font=("Arial", 16, "bold"),
+    #     bg=LIGHT_CARD_BG,
+    #     fg="white",
+    #     bd=0,                   # no border
+    #     activebackground=LIGHT_CARD_BG,
+    #     activeforeground="white",
+    #     cursor="hand2",
+    #     command=lambda: show_email_verification_screen_forgot_password(app)  # <- replace this with your back function
+    # )
+    # back_button.place(x=10, y=10)
+
     back_button = tk.Button(
         card,
-        text="←",                # just an arrow
-        font=("Arial", 16, "bold"),
+        image=app.back_img,        # use the loaded image
         bg=LIGHT_CARD_BG,
-        fg="white",
-        bd=0,                   # no border
+        bd=0,
         activebackground=LIGHT_CARD_BG,
-        activeforeground="white",
         cursor="hand2",
-        command=lambda: show_email_verification_screen_forgot_password(app)  # <- replace this with your back function
+        command=lambda: app.show_email_verification_screen_forgot_password(app)
     )
     back_button.place(x=10, y=10)
 
@@ -766,13 +774,30 @@ def check_password(app):
         return
 
     response = app.api.login(username, password)
-    
+
     if response.get("login_success") and response.get("user_details"):
-        # On success, set the state and go DIRECTLY to the logged-in screen
-        app.currently_logged_in_user = response.get("user_details")
+        user = response.get("user_details") or {}
+        # use the same normalization you used earlier during login
+        username_norm = (response.get("username") or username or "").strip().lower()
+
+        # ✅ make username available BOTH ways
+        app.logged_in_username = username_norm              # easy fallback
+        user["username"] = username_norm                    # inline for screens that read the dict
+        app.currently_logged_in_user = user
+
         app.login_attempt_user = None
-        home_screens.show_logged_in_screen(app) # <-- Direct navigation
+        home_screens.show_logged_in_screen(app)
     else:
-        # On failure, show an error
         app.error_label.config(text=response.get("message", "Incorrect Password."))
         app.password_entry.delete(0, 'end')
+
+    
+    # if response.get("login_success") and response.get("user_details"):
+    #     # On success, set the state and go DIRECTLY to the logged-in screen
+    #     app.currently_logged_in_user = response.get("user_details")
+    #     app.login_attempt_user = None
+    #     home_screens.show_logged_in_screen(app) # <-- Direct navigation
+    # else:
+    #     # On failure, show an error
+    #     app.error_label.config(text=response.get("message", "Incorrect Password."))
+    #     app.password_entry.delete(0, 'end')

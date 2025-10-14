@@ -4,35 +4,139 @@ import frontend_config as config
 from . import ui_helpers
 from PIL import Image, ImageTk
 
+# def show_applications_screen(app):
+#     """Shows the application management screen for a logged-in user with modern card + rounded button style."""
+#     ui_helpers.update_nav_selection(app, "applications")
+
+#     LIGHT_CARD_BG = "#AD567C"
+
+#     card = ui_helpers.create_main_card(app, width=820, height=520)
+#     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+#     card.pack(expand=True, fill="both")   
+#     # If not logged in
+#     if not app.currently_logged_in_user:
+#         card = ui_helpers.create_main_card(app, width=600, height=300)
+#         card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+#         tk.Label(
+#             card,
+#             text="Please log in to manage application settings.",
+#             font=app.font_large,
+#             fg=config.TEXT_COLOR,
+#             bg=LIGHT_CARD_BG,
+#             wraplength=400
+#         ).pack(expand=True)
+#         return
+
+#     user = app.currently_logged_in_user
+
+#     # --- Main Card ---
+#     card = ui_helpers.create_main_card(app, width=820, height=420)
+#     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+
+#     # Title
+#     tk.Label(
+#         card,
+#         text="Manage Applications",
+#         font=app.font_large,
+#         fg=config.TEXT_COLOR,
+#         bg=LIGHT_CARD_BG
+#     ).pack(pady=(20, 10))
+
+#     # Wrapper for cards
+#     cards_frame = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
+#     # cards_frame.pack(expand=True, pady=10)
+#     cards_frame.pack(expand=True, fill="both", padx=20, pady=10)
+
+#     # --- Helper to create consistent cards ---
+#     def _create_app_card(parent, icon, title, details, button_text, button_command):
+#         c = tk.Frame(parent, bg=config.CARD_BG_COLOR, width=230, height=300, relief="flat", bd=0)
+#         c.pack(side="left", padx=15, pady=10)
+#         c.pack_propagate(False)
+
+#         # Icon
+#         tk.Label(c, image=icon, bg=config.CARD_BG_COLOR).pack(pady=(20, 10))
+#         # Title
+#         tk.Label(c, text=title, font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack()
+#         # Details
+#         for line in details:
+#             tk.Label(c, text=line, font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=200).pack(pady=3)
+
+#         # Button
+#         tk.Button(
+#             c,
+#             text=button_text,
+#             font=app.font_small,
+#             bg=config.BUTTON_LIGHT_COLOR,
+#             fg=config.BUTTON_LIGHT_TEXT_COLOR,
+#             relief="flat",
+#             padx=12, pady=6,
+#             command=button_command
+#         ).pack(side=tk.BOTTOM, pady=15)
+
+#         return c
+
+#     # --- Password Card ---
+#     _create_app_card(
+#         cards_frame,
+#         app.key_img,
+#         "Password",
+#         ["********"],
+#         "Edit Password",
+#         app.show_change_password_screen
+#     )
+
+#     # --- Voice Biometrics Card ---
+#     voice_status = "Enrolled" if user.get('voiceprint_path') else "Not Enrolled"
+#     _create_app_card(
+#         cards_frame,
+#         app.mic_img,
+#         "Voice Biometrics",
+#         [f"Status: {voice_status}"],
+#         "Edit Biometrics",
+#         app.show_password_screen_voice_entry1
+#     )
+
+#     # --- OTP Settings Card ---
+#     masked_email = app._mask_email(user.get('email', ''))
+#     _create_app_card(
+#         cards_frame,
+#         app.otp_img,
+#         "OTP Settings",
+#         ["Account:", masked_email],
+#         "Edit Email Address",
+#         app.show_change_otp_settings_screen
+#     )
+
+
 def show_applications_screen(app):
     """Shows the application management screen for a logged-in user with modern card + rounded button style."""
-    ui_helpers.update_nav_selection(app, "applications")
+    import tkinter as tk
 
+    ui_helpers.update_nav_selection(app, "applications")
     LIGHT_CARD_BG = "#AD567C"
 
-    card = ui_helpers.create_main_card(app, width=820, height=420)
+    # --- Main card ---
+    card = ui_helpers.create_main_card(app, width=820, height=440)
     card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
-    card.pack(expand=True, fill="both")   
+    card.pack(expand=True, fill="both")
+
     # If not logged in
     if not app.currently_logged_in_user:
         card = ui_helpers.create_main_card(app, width=600, height=300)
         card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
-
         tk.Label(
             card,
             text="Please log in to manage application settings.",
             font=app.font_large,
             fg=config.TEXT_COLOR,
             bg=LIGHT_CARD_BG,
-            wraplength=400
-        ).pack(expand=True)
+            wraplength=400,
+            justify="center"
+        ).pack(expand=True, padx=24, pady=24)
         return
 
     user = app.currently_logged_in_user
-
-    # --- Main Card ---
-    card = ui_helpers.create_main_card(app, width=820, height=420)
-    card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
 
     # Title
     tk.Label(
@@ -41,136 +145,117 @@ def show_applications_screen(app):
         font=app.font_large,
         fg=config.TEXT_COLOR,
         bg=LIGHT_CARD_BG
-    ).pack(pady=(20, 10))
+    ).pack(pady=(16, 6))
 
-    # Wrapper for cards
-    cards_frame = tk.Frame(card, bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
-    cards_frame.pack(expand=True, pady=10)
+    # === Cards row (uses GRID for perfect columns) ===
+    # Outer padding for the card area
+    cards_frame = tk.Frame(card, bg=LIGHT_CARD_BG)
+    cards_frame.pack(fill="x", padx=24, pady=(6, 18))
 
-    # --- Helper to create consistent cards ---
-    def _create_app_card(parent, icon, title, details, button_text, button_command):
-        c = tk.Frame(parent, bg=config.CARD_BG_COLOR, width=230, height=300, relief="flat", bd=0)
-        c.pack(side="left", padx=15, pady=10)
-        c.pack_propagate(False)
+    # Grid config: 4 equal columns with a uniform name for equal sizing
+    for col in range(4):
+        cards_frame.grid_columnconfigure(col, weight=1, uniform="cards")
 
-        # Icon
-        tk.Label(c, image=icon, bg=config.CARD_BG_COLOR).pack(pady=(20, 10))
+    # Tidy vertical padding in the row
+    cards_frame.grid_rowconfigure(0, weight=1)
+
+    # ---- Card builder (fixed size; internal grid keeps button at bottom) ----
+    CARD_MIN_W = 170
+    CARD_MIN_H = 250
+    ICON_AREA_H = 60
+
+    def _create_app_card(parent, col, icon, title, details, button_text, button_command):
+        c = tk.Frame(parent, bg=config.CARD_BG_COLOR, bd=0, relief="flat")
+        c.grid(row=0, column=col, padx=12, pady=8, sticky="nsew")  # even gutters
+        c.update_idletasks()  # ensure geometry exists
+        c.grid_propagate(False)  # we’ll control size via minsize below
+
+        # Give each column a min size so all cards match width/height
+        parent.grid_columnconfigure(col, minsize=CARD_MIN_W)
+
+        # Internal grid: icon / title / details (expand) / button (bottom)
+        c.grid_rowconfigure(0, minsize=ICON_AREA_H)
+        c.grid_rowconfigure(1, minsize=26)
+        c.grid_rowconfigure(2, weight=1, minsize=80)
+        c.grid_rowconfigure(3, minsize=44)
+        c.grid_columnconfigure(0, weight=1)
+
+        # Icon (centered, consistent height)
+        icon_wrap = tk.Frame(c, bg=config.CARD_BG_COLOR, height=ICON_AREA_H)
+        icon_wrap.grid(row=0, column=0, sticky="nsew", pady=(12, 4))
+        icon_wrap.pack_propagate(False)
+        tk.Label(icon_wrap, image=icon, bg=config.CARD_BG_COLOR).pack(expand=True)
+
         # Title
-        tk.Label(c, text=title, font=app.font_medium_bold, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR).pack()
-        # Details
-        for line in details:
-            tk.Label(c, text=line, font=app.font_normal, fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR, wraplength=200).pack(pady=3)
+        tk.Label(
+            c, text=title, font=app.font_medium_bold,
+            fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR
+        ).grid(row=1, column=0, sticky="n", pady=(0, 2))
 
-        # Button
+        # Details (fills remaining space so buttons align across cards)
+        details_box = tk.Frame(c, bg=config.CARD_BG_COLOR)
+        details_box.grid(row=2, column=0, sticky="nsew", padx=10)
+        for line in details:
+            tk.Label(
+                details_box, text=line, font=app.font_normal,
+                fg=config.TEXT_COLOR, bg=config.CARD_BG_COLOR,
+                wraplength=CARD_MIN_W - 24, justify="center"
+            ).pack(pady=2)
+
+        # Button (pinned to bottom)
         tk.Button(
-            c,
-            text=button_text,
-            font=app.font_small,
-            bg=config.BUTTON_LIGHT_COLOR,
-            fg=config.BUTTON_LIGHT_TEXT_COLOR,
-            relief="flat",
-            padx=12, pady=6,
-            command=button_command
-        ).pack(side=tk.BOTTOM, pady=15)
+            c, text=button_text, command=button_command,
+            font=app.font_small, relief="flat",
+            bg=config.BUTTON_LIGHT_COLOR, fg=config.BUTTON_LIGHT_TEXT_COLOR,
+            padx=10, pady=6
+        ).grid(row=3, column=0, pady=(6, 12))
+
+        # Enforce overall min height for each card
+        c.update_idletasks()
+        c.configure(height=max(CARD_MIN_H, c.winfo_height()))
 
         return c
 
-    # --- Password Card ---
-    _create_app_card(
-        cards_frame,
-        app.key_img,
-        "Password",
-        ["********"],
-        "Edit Password",
-        app.show_change_password_screen
-    )
-
-    # --- Voice Biometrics Card ---
+    # Data
     voice_status = "Enrolled" if user.get('voiceprint_path') else "Not Enrolled"
-    _create_app_card(
-        cards_frame,
-        app.mic_img,
-        "Voice Biometrics",
-        [f"Status: {voice_status}"],
-        "Edit Biometrics",
-        app.show_password_screen_voice_entry1
-    )
-
-    # --- OTP Settings Card ---
     masked_email = app._mask_email(user.get('email', ''))
+
+    # Password Card
     _create_app_card(
-        cards_frame,
-        app.otp_img,
-        "OTP Settings",
+        cards_frame, 
+        0, 
+        app.key_img, 
+        "Password", 
+        ["********"],
+        "Edit Password", 
+        app.show_change_password_screen)
+
+    # Voice Biometrics Card
+    _create_app_card(
+        cards_frame, 
+        1, 
+        app.mic_img, 
+        "Voice Biometrics", 
+        [f"Status: {voice_status}"],
+        "Edit Biometrics", app.show_password_screen_voice_entry1)
+
+    # OTP Settings Card
+    _create_app_card(
+        cards_frame, 
+        2, app.otp_img, 
+        "OTP Settings", 
         ["Account:", masked_email],
-        "Edit Email Address",
-        app.show_change_otp_settings_screen
-    )
+        "Edit Email", 
+        app.show_change_otp_settings_screen)
 
-def show_profile_screen(app, event=None):
-    """Displays a read-only User Profile screen with profile icon and details."""
-    ui_helpers.update_nav_selection(app, "profile")
-
-    LIGHT_CARD_BG = "#AD567C"
-    INFO_CARD_BG = "#AD567C"
-    INFO_CARD_TEXT = "#ffffff"
-
-    user = app.currently_logged_in_user
-    if not user:
-        # Not logged in case
-        card = ui_helpers.create_main_card(app, width=600, height=300)
-        card.config(bg=LIGHT_CARD_BG, bd=0, highlightthickness=0)
-        tk.Label(
-            card,
-            text="Please log in to view your profile.",
-            font=app.font_large,
-            fg=config.TEXT_COLOR,
-            bg=LIGHT_CARD_BG,
-            wraplength=400
-        ).pack(expand=True)
-        return
-
-    # --- Main Profile Card ---
-    card = ui_helpers.create_main_card(app, width=820, height=480)
-    card.config(bg=LIGHT_CARD_BG, relief="flat", bd=0, highlightthickness=0)
-
-    content_frame = tk.Frame(card, bg=LIGHT_CARD_BG)
-    content_frame.pack(expand=True, fill="both", padx=30, pady=20)
-
-    # --- Profile Header with Icon ---
-    header_frame = tk.Frame(content_frame, bg=LIGHT_CARD_BG)
-    header_frame.pack(anchor="center", pady=(10, 25))
-
-    # Use app.profile_img (make sure to load an image in your app init)
-    tk.Label(header_frame, image=app.profile_img, bg=LIGHT_CARD_BG).pack(side="top", pady=10)
-    tk.Label(
-        header_frame, 
-        text=f"{user.get('username', 'User')}", 
-        font=app.font_large, 
-        fg=config.TEXT_COLOR, 
-        bg=LIGHT_CARD_BG
-    ).pack(side="top")
-
-    # --- Info Card ---
-    info_card = tk.Frame(content_frame, bg=INFO_CARD_BG, bd=0, relief="flat")
-    info_card.pack(fill="x", padx=40, pady=20)
-
-    body_font = font.Font(family=config.FONT_FAMILY, size=12)
-
-    # User Info (read-only)
-    user_info = {
-        "Full Name": user.get("full_name", "N/A"),
-        "Email": user.get("email", "N/A"),
-        "Voice Biometrics": "Enrolled" if user.get("voiceprint_path") else "Not Enrolled",
-        "2FA Enabled": "Yes" if user.get("2fa_enabled") else "No"
-    }
-
-    for i, (label, value) in enumerate(user_info.items()):
-        row = tk.Frame(info_card, bg=INFO_CARD_BG)
-        row.pack(anchor="w", pady=6, padx=20, fill="x")
-
-        tk.Label(row, text=f"{label}:", font=app.font_medium_bold, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG).pack(side="left")
-        tk.Label(row, text=f" {value}", font=body_font, fg=INFO_CARD_TEXT, bg=INFO_CARD_BG, wraplength=600, justify="left").pack(side="left")
+    # File Manager Card
+    _create_app_card(
+        cards_frame, 
+        3,
+        getattr(app, "files_img", getattr(app, "folder_img", app.key_img)),
+        "File Manager", ["MALASA-RPH-ACTIVITY1.pdf"],
+        "Manage File", getattr(app, "show_file_settings_screen", 
+        app.show_manage_files_screen))
 
 
 def show_about_screen(app, event=None):
