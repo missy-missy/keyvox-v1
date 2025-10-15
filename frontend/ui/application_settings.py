@@ -853,9 +853,9 @@ def show_manage_files_screen(app):
     def on_delete():
         idxs = _selected_indices()
         if not idxs:
-            messagebox.showinfo("Delete File", "Select file(s) to delete.")
+            messagebox.showinfo("Unlock File", "Select file(s) to unlock.")
             return
-        if not messagebox.askyesno("Confirm Delete", f"Delete {len(idxs)} selected file(s)? This cannot be undone."):
+        if not messagebox.askyesno("Confirm Unlock", f"Unlock {len(idxs)} selected file(s)?."):
             return
 
         # Delete from the highest index down to keep indices stable
@@ -877,7 +877,7 @@ def show_manage_files_screen(app):
     btns.pack(fill="x", padx=50, pady=(6, 12))
 
     tk.Button(
-        btns, text="Upload File", font=font_button,
+        btns, text="Lock", font=font_button,
         bg="#F5F5F5", fg="black", relief="flat", padx=12, pady=6,
         command=on_upload
     ).pack(side="left")
@@ -889,7 +889,7 @@ def show_manage_files_screen(app):
     ).pack(side="left", padx=(10, 0))
 
     tk.Button(
-        btns, text="Delete", font=font_button,
+        btns, text="Unlock", font=font_button,
         bg="#F5F5F5", fg="black", relief="flat", padx=12, pady=6,
         command=on_delete
     ).pack(side="left", padx=(10, 0))

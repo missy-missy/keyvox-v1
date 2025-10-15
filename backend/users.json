@@ -112,5 +112,11 @@
         "email": "ashjewelh@gmail.com",
         "password_hash": "1dff2b17452f3c92790bb4e167ab2ad6f4845b1b62c20a871681d4c062deae18",
         "voiceprint_path": "voiceprints\\ashhhh.npy"
+    },
+    "4shjwht": {
+        "full_name": "ashley jewel heart",
+        "email": "ashleyjewelheartlmalasa@gmail.com",
+        "password_hash": "9c91b6e025bfec8e5c14c191bbfac2f0981deecbbc95b742cda75b74b1b9646e",
+        "voiceprint_path": "voiceprints\\4shjwht.npy"
     }
 }
