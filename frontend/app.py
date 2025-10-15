@@ -101,6 +101,7 @@ class KeyVoxApp:
             self.usb_img_2 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb2.png")).resize((90, 90)))
             self.usb_img_3 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb3.png")).resize((90, 90)))
             self.usb_img_4 = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "usb4.png")).resize((50, 50)))
+            self.begin_log_img = ImageTk.PhotoImage(Image.open(os.path.join(img_dir, "begin.png")).resize((200, 40)))
             
 
 
