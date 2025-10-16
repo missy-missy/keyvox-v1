@@ -728,7 +728,7 @@ def show_manage_files_screen(app):
     # --- Subtitle ---
     tk.Label(
         card,
-        text="Upload, open, or delete files used for authentication.",
+        text="Secure Your Files.",
         font=font_subtitle, fg="white", bg=LIGHT_CARD_BG
     ).pack(anchor="w", padx=50, pady=(0, 12))
 
@@ -816,9 +816,9 @@ def show_manage_files_screen(app):
         if added:
             _refresh_list()
         if errors == 0 and added:
-            _set_msg(f"Added {added} file(s).")
+            _set_msg(f"Locked {added} file(s).")
         elif errors:
-            _set_msg(f"Added {added}, {errors} failed.", "orange")
+            _set_msg(f"Locked {added}, {errors} failed.", "orange")
 
     def _selected_indices():
         sel = list(file_listbox.curselection())
@@ -870,7 +870,7 @@ def show_manage_files_screen(app):
 
         if deleted:
             _refresh_list()
-            _set_msg(f"Deleted {deleted} file(s).")
+            _set_msg(f"Unlock {deleted} file(s).")
 
     # --- Buttons row ---
     btns = tk.Frame(card, bg=LIGHT_CARD_BG)

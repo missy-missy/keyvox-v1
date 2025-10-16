@@ -228,7 +228,7 @@ def show_enrollment_step1(app):
             entry.grid(row=i + 2, column=1, pady=6, ipady=4, padx=(0, 40), sticky="ew")
             app.entry_widgets[key] = entry
 
-    app.enroll_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    app.enroll_error_label = tk.Label(card, text="", font=font_small, fg="#FFB5B7", bg=LIGHT_CARD_BG)
     app.enroll_error_label.grid(row=len(fields) + 2, column=0, columnspan=2, pady=(10, 0))
 
     bf = tk.Frame(app.content_frame, bg=LIGHT_CARD_BG)
