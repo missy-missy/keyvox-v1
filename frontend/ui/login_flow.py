@@ -58,7 +58,7 @@ def show_username_entry_screen(app):
 
     # --- Error Label ---
     app.username_error_label = tk.Label(
-        content_wrapper, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG
+        content_wrapper, text="", font=font_small, fg="#FFB5B7", bg=LIGHT_CARD_BG
     )
     app.username_error_label.pack(pady=(10, 0))
 
@@ -240,7 +240,7 @@ def show_password_screen(app):
         content_wrapper,
         text="",
         font=app.font_small,
-        fg=config.ERROR_COLOR,
+        fg="#FFB5B7",
         bg=LIGHT_CARD_BG
     )
     app.error_label.pack(pady=(0, 10))
@@ -401,7 +401,7 @@ def show_email_verification_screen_forgot_password(app):
     email_entry.pack(ipady=6, pady=(0, 10))
 
     # --- Error Label ---
-    error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    error_label = tk.Label(card, text="", font=font_small, fg="#FFB5B7", bg=LIGHT_CARD_BG)
     error_label.pack(pady=(0, 10))
 
     # --- Success Label ---
@@ -527,7 +527,7 @@ def show_otp_verification_screen_forgot_password(app, stored_email):
     app.otp_entry.pack(ipady=6, pady=(0, 10))
 
     # --- Error Label ---
-    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG)
+    app.otp_error_label = tk.Label(card, text="", font=font_small, fg="#FFB5B7", bg=LIGHT_CARD_BG)
     app.otp_error_label.pack(pady=(0, 10))
 
     # --- Send Code Label ---
@@ -711,7 +711,7 @@ def show_new_password_screen(app):
 
     # --- Error/Info Label ---
     app.enroll_error_label = tk.Label(
-        card, text="", font=font_small, fg="red", bg=LIGHT_CARD_BG
+        card, text="", font=font_small, fg="#FFB5B7", bg=LIGHT_CARD_BG
     )
     app.enroll_error_label.grid(row=len(fields) + 2, column=0, columnspan=2, pady=(10, 0))
 
