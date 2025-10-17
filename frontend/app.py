@@ -40,7 +40,7 @@ class KeyVoxApp:
         self.recording_thread = None
         self.current_phrase_index = 0
         self.enrollment_phrases = [
-            "My password is my voice"
+            "“My voice is my password; please grant access to my account.”"
             # , 
             # "Authenticate me through speech", 
             # "Nine five two seven echo zebra tree", 

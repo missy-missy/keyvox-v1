@@ -115,3 +115,37 @@ def get_user_key_by_email_or_name(email: str = "", full_name: str = "", user_fil
 
     return None
 
+def _norm(s):
+    return s.strip().lower() if isinstance(s, str) else ""
+
+def find_user_by_username(username, user_file=USER_FILE):
+    """
+    Robust lookup that works whether the username is the DICT KEY
+    or stored in user['username'] (future-proof).
+    Returns (exact_key, user_dict) or (None, None).
+    """
+    uname = _norm(username)
+    if not uname:
+        return None, None
+
+    users = load_users(user_file)
+    if not isinstance(users, dict):
+        return None, None
+
+    for key, user in users.items():
+        # Case 1: username is the dict key (your current JSON layout)
+        if _norm(key) == uname:
+            return key, user
+
+        # Case 2: username lives inside the object (future compatibility)
+        if isinstance(user, dict) and _norm(user.get("username")) == uname:
+            return key, user
+
+    return None, None
+
+def username_exists(username, user_file=USER_FILE):
+    """
+    Convenience boolean check.
+    """
+    key, user = find_user_by_username(username, user_file=user_file)
+    return user is not None

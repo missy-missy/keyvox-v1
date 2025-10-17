@@ -6,6 +6,9 @@ import frontend_config as config
 from ui import ui_helpers
 from utils.validators import validate_email, validate_password
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
+from user_data_manager import username_exists
+
 # Ensure backend is importable
 import os, sys
 from pathlib import Path
@@ -246,25 +249,58 @@ def show_enrollment_step1(app):
               command=lambda: validate_step1(app)).pack(side="right")
 
 def validate_step1(app):
-    data = {key: entry.get() for key, entry in app.entry_widgets.items()}
+    # Read current inputs from the widgets
+    data = {key: (entry.get() if entry else "") for key, entry in app.entry_widgets.items()}
 
-    # Email and password validation
-    email_valid, email_err = validate_email(data.get("email", ""))
+    # Normalize inputs
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip()
+    password = data.get("password") or ""
+    confirm_password = data.get("confirm_password") or ""
+
+    # --- Username checks ---
+    if not username:
+        app.enroll_error_label.config(text="Please enter a username!")
+        return
+
+    # Uses the new helper you added that checks dict keys (case-insensitive)
+    if username_exists(username):
+        app.enroll_error_label.config(text="Username already exists!")
+        return
+
+    # --- Email checks ---
+    email_valid, email_err = validate_email(email)
     if not email_valid:
         app.enroll_error_label.config(text=email_err)
         return
 
-    password_valid, password_err = validate_password(data.get("password", ""))
+    # (Optional) ensure email is unique too
+    # if get_user_by_email(email):
+    #     app.enroll_error_label.config(text="Email is already in use.")
+    #     return
+
+    # --- Password checks ---
+    password_valid, password_err = validate_password(password)
     if not password_valid:
         app.enroll_error_label.config(text=password_err)
         return
 
-    if data["password"] != data["confirm_password"]:
+    if password != confirm_password:
         app.enroll_error_label.config(text="Passwords do not match.")
         return
 
-    # Save in-memory (do NOT persist yet)
-    app.new_enrollment_data = {k: v for k, v in data.items() if k != "confirm_password"}
+    # --- Save in-memory (do NOT persist yet) ---
+    app.new_enrollment_data = {
+        k: v for k, v in {
+            "username": username,
+            "email": email,
+            "password": password,  # hash later before persisting
+            # include other fields from data if needed:
+            "full_name": (data.get("full_name") or "").strip(),
+        }.items() if v != ""  # keep it tidy
+    }
+
+    # Clear error and advance
     app.enroll_error_label.config(text="")
     show_enrollment_step2(app)
 
@@ -368,9 +404,9 @@ def handle_final_enrollment_upload(app, next_step="otp"):
         return
 
     audio_path = os.path.join(config.AUDIO_DIR, f"{username}_phrase_1.wav")
-    if not os.path.exists(audio_path):
-        messagebox.showerror("Error", "Primary enrollment audio not found. Please record phrase 1 again.")
-        return
+    # if not os.path.exists(audio_path):
+    #     messagebox.showerror("Error", "Primary enrollment audio not found. Please record phrase 1 again.")
+    #     return
 
     # Stash the path for post-OTP voice enrollment
     app.pending_voice_file = audio_path
@@ -438,31 +474,42 @@ def show_enrollment_step3_otp(app):
             if not success:
                 app.otp_error_label.config(text="Invalid or expired OTP. Please try again.")
                 return
-
+            print("0")
             messagebox.showinfo("Success", "OTP verified successfully!")
-
+            print("1")
             # ✅ NOW register the user (email is verified)
             try:
+                print("2")
                 save_response = app.api.register_user(app.new_enrollment_data)
+                print("2.1")
             except Exception as e:
+                print("3.1")
                 messagebox.showerror("Enrollment Failed", f"Could not save user data: {e}")
                 return
-
+            print("4")
             if not save_response or save_response.get("status") != "success":
+                print("4.1")
                 messagebox.showerror("Enrollment Failed", save_response.get("message", "Could not save user data."))
                 return
-
+            print("5")
             # ✅ Enroll voice now that the user exists
             username = app.new_enrollment_data.get("username")
-            audio_path = app.pending_voice_file
-            if not username or not audio_path or not os.path.exists(audio_path):
-                messagebox.showerror("Error", "Voice recording not found for enrollment.")
-                return
-
-            resp = app.api.enroll_voice(username, audio_path)
-            if not resp or resp.get("status") != "success":
-                messagebox.showerror("Enrollment Failed", resp.get("message", "Voice enrollment failed."))
-                return
+            print("6")
+            # audio_path = app.pending_voice_file
+            audio_path = "TESTTESTEST"
+            print("7")
+            # if not username or not audio_path or not os.path.exists(audio_path):
+            #     print("8")
+            #     messagebox.showerror("Error", "Voice recording not found for enrollment.")
+            #     return
+            print("9")
+            # resp = app.api.enroll_voice(username, audio_path)
+            # print("10")
+            # if not resp or resp.get("status") != "success":
+            #     print("11")
+            #     messagebox.showerror("Enrollment Failed", resp.get("message", "Voice enrollment failed."))
+            #     return
+            # print("11")
 
             # → Proceed to Step 4 (file upload)
             show_enrollment_step4_file_upload(app)

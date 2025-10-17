@@ -7,7 +7,10 @@ from ui import home_screens # <--- CHANGE #1: ADD THIS IMPORT AT THE TOP
 
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend")))
-from user_data_manager import get_user_by_key, update_email, get_user_by_email, get_user_by_username, change_password
+from user_data_manager import get_user_by_key, update_email, get_user_by_email, get_user_by_username, change_password, username_exists
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../prototypes")))
+from verify_jovs import verify_user
 
 
 
@@ -95,20 +98,32 @@ def show_username_entry_screen(app):
 
 def handle_username_submit(app):
     """Validates the entered username with the backend."""
-    username = app.username_entry.get()
+    username = app.username_entry.get().strip()
     if not username:
         app.username_error_label.config(text="Username cannot be empty.")
         return
+    
 
-    enrollment_status = app.api.check_enrollment(username)
+    # jovs bypass
+    # enrollment_status = app.api.check_enrollment(username)
 
-    if enrollment_status.get("enrolled"):
-        app.login_attempt_user = {"username": username.lower()}
-        show_login_voice_auth_screen(app)
-    else:
-        message = enrollment_status.get("message", "An unknown error occurred.")
-        app.username_error_label.config(text=message)
-        app.username_entry.delete(0, 'end')
+    # if enrollment_status.get("enrolled"):
+    #     app.login_attempt_user = {"username": username.lower()}
+    #     show_login_voice_auth_screen(app)
+    # else:
+    #     message = enrollment_status.get("message", "An unknown error occurred.")
+    #     app.username_error_label.config(text=message)
+    #     app.username_entry.delete(0, 'end')
+
+    # --- Check if username exists ---
+    if not username_exists(username):
+        app.username_error_label.config(text="Username does not exist.")
+        # app.username_entry.delete(0, 'end')
+        return
+
+    # ✅ Username is valid → proceed to password / voice auth
+    app.login_attempt_user = {"username": username.lower()}
+    show_login_voice_auth_screen(app)
 
 def show_login_voice_auth_screen(app):
     """Shows the voice recording UI for login verification."""
@@ -151,7 +166,7 @@ def show_login_voice_auth_screen(app):
 
     # --- Instruction ---
     tk.Label(
-        card, text='Please say: "My voice is my password"',
+        card, text='Please say:\nMy voice is my password; please grant access to my account.',
         font=font_subtitle, fg="#F5C6E0",
         bg=LIGHT_CARD_BG, wraplength=600, justify="center"
     ).grid(row=1, column=0, pady=(1, 10), sticky="n")
@@ -204,14 +219,25 @@ def handle_login_voice_record(app, event=None):
     messagebox.showinfo("Success", "Voice Authenticated! Please enter your password.")
     messagebox.showinfo("Success", "FIRST VOICE.")
     '''
-    verified = True
-    if verified:
-        print("handle_login_voice_record logs")
-        messagebox.showinfo("Voice Auth Success", f"--- Verification Result ---\nSimilarity Score: 0.743\n✅ Access Granted. Welcome {username}")
+    # verified = True
+    # if verified:
+        
+    #     messagebox.showinfo("Voice Auth Success", f"--- Verification Result ---\nSimilarity Score: 0.743\n✅ Access Granted. Welcome {username}")
+    #     show_password_screen(app)
+    # else:
+    #     messagebox.showerror("Voice Auth Failed", "ERROR LOGS\n--- Verification Result ---\n\nSimilarity Score: 0.116\n ❌ Access Denied. Voice does not match.")
+    
+    print("handle_login_voice_record logs")
+    success = verify_user(username)
+    if success:
+        messagebox.showinfo("Verification", f"✅ Access granted for '{username}'.")
         show_password_screen(app)
     else:
-        messagebox.showerror("Voice Auth Failed", "ERROR LOGS\n--- Verification Result ---\n\nSimilarity Score: 0.116\n ❌ Access Denied. Voice does not match.")
-    
+        messagebox.showerror("Verification", f"❌ Voice does not match '{username}'.")
+
+
+
+
     
 
 def show_password_screen(app):

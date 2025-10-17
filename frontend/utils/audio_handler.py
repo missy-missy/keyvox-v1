@@ -5,6 +5,10 @@ import threading
 import frontend_config as config
 from tkinter import messagebox
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../prototypes")))
+from enroll_jovs import enroll_user
+
 # PyAudio format constant
 FORMAT = pyaudio.paInt16
 
@@ -51,10 +55,16 @@ def toggle_recording(app, event=None):
         # app.recording_thread = threading.Thread(target=_record_audio_thread, args=(app,), daemon=True)
     #     app.recording_thread.start() 
     print("toggle_recording")
-    app.recording_status_label.config(text="Recording... Click mic to stop.")
-    app.recording_status_label.config(text="Saving...")
+    # app.recording_status_label.config(text="Recording... Click mic to stop.")
+    # app.recording_status_label.config(text="Saving...")
+    
+    # messagebox.showinfo("TRIAL 1", "Trial 2 3 4 5 ")
+    username = app.new_enrollment_data.get('username', 'user')
+    if not username:
+        messagebox.showwarning("Missing Input", "Please enter a username.")
+        return
     app.next_btn.config(state="normal")
-    messagebox.showinfo("TRIAL 1", "Trial 2 3 4 5 ")
+    enroll_user(username)
 
 # def _record_audio_thread(app):
 #     """The target function for the recording thread."""
@@ -84,7 +94,7 @@ def toggle_recording(app, event=None):
         
 #     app.root.after(0, _on_recording_finished, app)
 
-def _on_recording_finished(app):
-    """Callback to update the UI after recording is saved."""
-    app.recording_status_label.config(text="Recording saved!")
-    app.next_btn.config(state="normal")
+# def _on_recording_finished(app):
+#     """Callback to update the UI after recording is saved."""
+#     app.recording_status_label.config(text="Recording saved!")
+#     app.next_btn.config(state="normal")

@@ -118,5 +118,17 @@
         "email": "ashleyjewelheartlmalasa@gmail.com",
         "password_hash": "9c91b6e025bfec8e5c14c191bbfac2f0981deecbbc95b742cda75b74b1b9646e",
         "voiceprint_path": "voiceprints\\4shjwht.npy"
+    },
+    "jc": {
+        "full_name": "jc",
+        "email": "jovanniecambalo@gmail.com",
+        "password_hash": "324ef3507738a3bef515cd29da83fb91c5a16a01958a6357331b053fabc0359f",
+        "voiceprint_path": null
+    },
+    "jc2": {
+        "full_name": "jc2",
+        "email": "lolforsalejc@gmail.com",
+        "password_hash": "1cccbbd7107b2e556e8763645a4e9c2773e353f1d75417bf222729bba07c26ba",
+        "voiceprint_path": null
     }
 }
