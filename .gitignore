@@ -3,6 +3,7 @@
 /.venv
 venv/
 ENV/
+py311_env/
 
 # --- Python Artifacts ---
 # Ignore bytecode, distribution files, and caches.
